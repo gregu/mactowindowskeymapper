@@ -1,170 +1,122 @@
 ﻿; ==============================================================================
-; MAC OS ULTIMATE V33 (USER MODE + INTELLIJ FOCUS)
+; MAC OS ULTIMATE V36 (INTELLIJ INJECTION + DUPLICATE CONTROL)
 ; ==============================================================================
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 #UseHook
 InstallKeybdHook
-InstallMouseHook
 
-; --- GRUPS ---
+; Maska klawisza Win (żeby Start nie wyskakiwał przy LCtrl)
+A_MenuMaskKey := "vkE8"
+
+; --- DEFINICJA GRUP ---
 GroupAdd "Editors", "ahk_exe idea64.exe"      ; IntelliJ
 GroupAdd "Editors", "ahk_exe Code.exe"        ; VS Code
 GroupAdd "Explorer", "ahk_class CabinetWClass"
-GroupAdd "Browsers", "ahk_exe chrome.exe"
-GroupAdd "Browsers", "ahk_exe msedge.exe"
-GroupAdd "Terminals", "ahk_exe WindowsTerminal.exe"
 
 ; ==============================================================================
-; 1. SYSTEM KILLERS (Specific for IntelliJ without Admin)
+; SECTION 1: CORE REMAPPING (GLOBAL)
 ; ==============================================================================
-; Używamy scancode (SC) zamiast nazw klawiszy, to czasem omija blokady.
 
-#HotIf WinActive("ahk_group Editors")
-    ; ZMUSZAMY Windowsa do oddania Win+F w IntelliJ
-    $#f::Send "^f"
-    $#+f::Send "^+f"
-    $#c::Send "^c"
-    $#v::Send "^v"
-    
-    ; Jeśli powyższe nie działa, odkomentuj poniższe linie (PLAN B)
-    ; I w IntelliJ ustaw "Find" na Ctrl+Alt+F
-    ; $#f::Send "^!f" 
-#HotIf
-
-; Globalne zabijanie Feedback Hub (Dla reszty systemu)
-$#f::Send "^f"
-$#+f::Send "^+f"
-
-; ==============================================================================
-; 2. CORE REMAP
-; ==============================================================================
+; Cmd (LWin) -> Ctrl
 *LWin::Send "{Blind}{LCtrl DownR}"
 *LWin Up::Send "{Blind}{LCtrl Up}"
 
-*LCtrl::
-{
-    if WinActive("ahk_group Terminals")
-        Send "{Blind}{LCtrl DownR}"
-    else
-        Send "{Blind}{LWin DownR}"
-}
+; Ctrl (LCtrl) -> Win (Z blokadą Menu Start)
+*LCtrl::Send "{Blind}{LWin DownR}"
 *LCtrl Up::
 {
-    if WinActive("ahk_group Terminals")
-        Send "{Blind}{LCtrl Up}"
-    else {
-        Send "{Blind}{LWin Up}"
-        if (A_PriorKey = "LCtrl")
-            Send "{Blind}{vkE8}"
-    }
+    Send "{Blind}{LWin Up}"
+    if (A_PriorKey = "LCtrl")
+        Send "{Blind}{vkE8}"
 }
 
 ; ==============================================================================
-; 3. LOGIC DISPATCHER
+; SECTION 2: INTELLIJ "CLINCH" (Tylko dla IntelliJ)
+; ==============================================================================
+; Używamy $ oraz Scancode, aby Windows nie przechwycił Win+F/Win+R.
+
+#HotIf WinActive("ahk_exe idea64.exe")
+
+    ; CMD+F (Find)
+    $#f::
+    {
+        Send "{LCtrl down}"
+        Sleep 15
+        Send "{sc021 down}" ; F
+        Sleep 15
+        Send "{sc021 up}{LCtrl up}"
+    }
+
+    ; CMD+R (Replace)
+    $#r::
+    {
+        Send "{LCtrl down}"
+        Sleep 15
+        Send "{sc013 down}" ; R
+        Sleep 15
+        Send "{sc013 up}{LCtrl up}"
+    }
+
+    ; CMD+SHIFT+F (Find in Path)
+    $#+f::
+    {
+        Send "{LCtrl down}{LShift down}"
+        Sleep 15
+        Send "{sc021 down}" ; F
+        Sleep 15
+        Send "{sc021 up}{LShift up}{LCtrl up}"
+    }
+
+    ; CMD+SHIFT+R (Replace in Path)
+    $#+r::
+    {
+        Send "{LCtrl down}{LShift down}"
+        Sleep 15
+        Send "{sc013 down}" ; R
+        Sleep 15
+        Send "{sc013 up}{LShift up}{LCtrl up}"
+    }
+
+#HotIf
+
+; ==============================================================================
+; SECTION 3: GLOBAL LOGIC (Z wyłączeniem IntelliJ dla duplikatów)
 ; ==============================================================================
 
-; --- ARROWS & SELECTION ---
-*^Up::
-{
-    if GetKeyState("Shift", "P")
-        Send "+^{Home}"
-    else if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}!{Up}"
-    else
-        Send "^{Home}"
-}
-
-*^Down::
-{
-    if GetKeyState("Shift", "P")
-        Send "+^{End}"
-    else if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}{Enter}"
-    else
-        Send "^{End}"
-}
-
-*^Left::
-{
-    if GetKeyState("Shift", "P")
-        Send "+{Home}"
-    else if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}!{Left}"
-    else
-        Send "{Home}"
-}
-
-*^Right::
-{
-    if GetKeyState("Shift", "P")
-        Send "+{End}"
-    else if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}!{Right}"
-    else
-        Send "{End}"
-}
-
-; --- EDITING ---
-*^Backspace::
-{
-    if GetKeyState("Shift", "P") {
-        if WinActive("ahk_group Explorer")
-            Send "+{Delete}"
-        else
-            Send "^+{Backspace}"
-    } else {
-        if WinActive("ahk_group Explorer")
-            Send "{Delete}"
-        else
-            Send "+{Home}{Delete}"
-    }
-}
-
-Enter::
-{
-    if WinActive("ahk_group Explorer")
-        Send "{F2}"
-    else
-        Send "{Enter}"
-}
-
-; --- SHORTCUTS ---
-^c:: Send WinActive("ahk_group Terminals") ? "^+c" : "^c"
-^v:: Send WinActive("ahk_group Terminals") ? "^+v" : "^v"
-^n:: Send "^n"
-^+n:: Send "^+n"
-
-; Cmd+F Logic
-^f::
-{
-    if WinActive("ahk_group Terminals")
-        Send "^+f"
-    else if WinActive("ahk_group Explorer")
-        Send "^e"
-    else
-        Send "^f"
-}
-
-; Cmd+Space (Start)
+; Cmd+Space -> Start Menu
 ^Space::Send "^{Esc}"
 
-; Tab
+; Cmd+Tab -> Alt+Tab
 LCtrl & Tab::AltTab
 
-; --- F-KEYS ---
-F3::Send "#{Tab}"
-F4::Send "^{Esc}"
+; --- NAWIGACJA (Działa wszędzie) ---
+; Używamy *^, aby obsłużyć Cmd+Arrows oraz Cmd+Shift+Arrows w jednym bloku
+*^Left::  Send (GetKeyState("Shift", "P") ? "+{Home}" : "{Home}")
+*^Right:: Send (GetKeyState("Shift", "P") ? "+{End}" : "{End}")
+*^Up::    Send (GetKeyState("Shift", "P") ? "+^{Home}" : "^{Home}")
+*^Down::  Send (GetKeyState("Shift", "P") ? "+^{End}" : "^{End}")
+
+; --- EDYCJA ---
+^Backspace::Send "+{Home}{Delete}"
+
+; --- EKSPLORATOR ---
+#HotIf WinActive("ahk_group Explorer")
+    Enter::Send "{F2}"
+    ^Down::Send "{Enter}"
+    ^Up::Send "!{Up}"
+    ^Backspace::Send "{Delete}"
+#HotIf
+
+; --- MULTIMEDIA ---
 F7::Send "{Media_Prev}"
 F8::Send "{Media_Play_Pause}"
 F9::Send "{Media_Next}"
-F10::Send "{Volume_Mute}"
 F11::Send "{Volume_Down}"
 F12::Send "{Volume_Up}"
 
-; Misc
-^q::Send "!{F4}"
-SC029::Send "{Text}§"
+; --- HARDWARE ---
+SC029::Send "{Text}§"       ; Klawisz pod ESC
 +SC029::Send "{Text}±"
 LCtrl & LButton::Click "Right"
 RAlt::RAlt
