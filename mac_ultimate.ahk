@@ -1,8 +1,8 @@
-#Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0
 #SingleInstance Force
 SetTitleMatchMode 2
 
-; --- DEFINICJE GRUP ---
+; --- GROUP DEFINITIONS ---
 GroupAdd "Terminals", "ahk_exe WindowsTerminal.exe"
 GroupAdd "Terminals", "ahk_exe powershell.exe"
 GroupAdd "Terminals", "ahk_exe cmd.exe"
@@ -11,7 +11,7 @@ GroupAdd "Explorer", "ahk_class CabinetWClass"
 GroupAdd "Explorer", "ahk_class ExploreWClass"
 
 ; ==============================================================================
-; TRYB TERMINAL (Kopiowanie Cmd+C, natywny Ctrl)
+; MODE 1: TERMINALS (Native Ctrl, Cmd=Copy)
 ; ==============================================================================
 #HotIf WinActive("ahk_group Terminals")
     LCtrl::LCtrl
@@ -25,7 +25,7 @@ GroupAdd "Explorer", "ahk_class ExploreWClass"
 #HotIf
 
 ; ==============================================================================
-; TRYB FINDER / EKSPLORATOR (Enter zmienia nazwę)
+; MODE 2: EXPLORER / FINDER (Enter renames file)
 ; ==============================================================================
 #HotIf WinActive("ahk_group Explorer")
     Enter::Send "{F2}"
@@ -39,7 +39,7 @@ GroupAdd "Explorer", "ahk_class ExploreWClass"
 #HotIf
 
 ; ==============================================================================
-; TRYB GLOBALNY (Wszystkie inne aplikacje)
+; MODE 3: GLOBAL GUI (Standard Apps)
 ; ==============================================================================
 LWin::LCtrl
 LCtrl::LWin
@@ -60,5 +60,8 @@ LCtrl & Tab::AltTab
 ^+3::Send "{PrintScreen}"
 ^+4::Send "#+s"
 
+; Right Alt (Option) remains unchanged for special characters
 RAlt::RAlt
+
+; Suspend script with F8
 F8::Suspend
