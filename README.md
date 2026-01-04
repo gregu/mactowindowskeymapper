@@ -1,52 +1,46 @@
 # Mac-Like Experience for Windows (No Admin Rights)
 
-This AutoHotKey script provides a macOS-like keyboard experience on Windows 10/11. It is specifically designed for users who:
-* Use a **Logitech MX Keys for Mac** (or similar Mac layout keyboard).
-* **Do not have Administrator privileges** (Corporate laptops).
-* Need seamless switching between **GUI apps** (IntelliJ, Browser) and **Terminal/WSL**.
+This AutoHotKey script provides a comprehensive macOS-like experience on Windows 10/11. It is optimized for **Logitech MX Keys for Mac** and works without Administrator privileges (portable).
 
 ## 🚀 Features
 
-* **Command ⌘ behaves like Control** (Copy, Paste, Select All).
-* **Physical Control behaves like Windows Key**.
-* **Smart Terminal Mode:**
-    * In Terminals (WSL, PowerShell), `Cmd+C` performs `Ctrl+Shift+C` (Copy).
-    * Physical `Ctrl` sends native signal (essential for `Ctrl+C` SIGINT or Vim navigation).
-* **Navigation:** `Cmd + Arrows` for Home/End; `Option + Arrows` for word jumping.
-* **System Shortcuts:**
-    * `Cmd + Tab` → App Switcher (Alt+Tab).
-    * `Cmd + Space` → Start Menu.
-    * `Cmd + Q` → Close Window.
-    * `Cmd + Shift + 3/4` → Screenshots.
-* **Mouse:** `Ctrl + Click` triggers **Right Click**.
+* **Command ⌘ is Control:** Use your thumb for Copy/Paste (`Cmd+C`, `Cmd+V`).
+* **Smart Finder (Explorer):**
+    * `Enter` renames files (like macOS).
+    * `Cmd + ↓` opens files/folders.
+    * `Cmd + ↑` goes to parent folder.
+    * `Cmd + Backspace` deletes files.
+* **Smart Terminal (WSL/PowerShell):**
+    * `Cmd+C` performs `Copy` (sends `Ctrl+Shift+C`).
+    * Physical `Ctrl` behaves natively (essential for `SIGINT` or `Vim`).
+* **Navigation:** macOS style text navigation (`Cmd+Arrows`, `Option+Arrows`).
+* **System:** `Cmd+Space` for Start Menu, `Cmd+Q` to close windows, `Cmd+Tab` to switch apps.
 
 ## ⚙️ Prerequisites
 
-1.  **AutoHotKey (Portable):**
-    * Download the `.zip` version of AutoHotKey (v1.1 or v2.0) from the [official site](https://www.autohotkey.com/).
-    * Extract it to a folder (no installation required).
-2.  **Logitech Keyboard Setup:**
-    * **Crucial Step:** Ensure your keyboard is sending Windows codes on the Windows channel.
-    * Press and hold **`Fn + P`** for 3 seconds while on the Windows channel. The LED should blink.
+1.  **AutoHotKey v2.0 (Portable):**
+    * Go to the [AutoHotkey GitHub Releases page](https://github.com/AutoHotkey/AutoHotkey/releases).
+    * Scroll to the latest version and expand **Assets**.
+    * Download the **.zip** file (e.g., `AutoHotkey_2.0.18.zip`).
+    * Extract it to a folder of your choice.
+2.  **Keyboard State:** Ensure your `Command` key acts as the Windows key (opens Start Menu) when the script is OFF. This is the default behavior for most Mac keyboards plugged into Windows.
 
 ## 📦 Installation
 
-1.  Clone this repository or download `mac_ultimate.ahk`.
-2.  Drag and drop `mac_ultimate.ahk` onto `AutoHotkeyU64.exe` (from the portable folder).
-3.  Look for the green "H" icon in the system tray.
+1.  Download `mac_ultimate_v2.ahk` from this repository.
+2.  Drag and drop the `.ahk` file onto `AutoHotkey64.exe` (located in the folder where you extracted AutoHotkey).
+3.  Enjoy! (A green "H" icon in the system tray indicates it's running).
 
-## ⌨️ Key Mappings
+## ⌨️ Cheat Sheet
 
-| Action | Physical Key Combo | Emulated Windows Action |
+| Action | Mac Shortcut (Your Hands) | Result on Windows |
 | :--- | :--- | :--- |
-| **Copy / Paste** | `Cmd + C` / `V` | `Ctrl + C` / `V` |
-| **Terminal Copy** | `Cmd + C` | `Ctrl + Shift + C` |
-| **Start Menu** | `Cmd + Space` | `Win` (Ctrl+Esc) |
-| **App Switcher** | `Cmd + Tab` | `Alt + Tab` |
-| **Close App** | `Cmd + Q` | `Alt + F4` |
-| **Right Click** | `Ctrl + Left Click` | `Right Click` |
-| **End of Line** | `Cmd + Right Arrow` | `End` |
-| **Next Word** | `Opt + Right Arrow` | `Ctrl + Right Arrow` |
+| **Copy/Paste** | `Cmd + C/V` | Works everywhere |
+| **Rename File** | `Enter` | Renames file (F2) |
+| **Open File** | `Cmd + ↓` or `Cmd + O` | Opens file (Enter) |
+| **Delete File** | `Cmd + Backspace` | Deletes file |
+| **Spotlight** | `Cmd + Space` | Opens Start Menu |
+| **Right Click** | `Ctrl + Left Click` | Right Click |
 
 ## 🛠 Troubleshooting
 
@@ -59,4 +53,4 @@ This AutoHotKey script provides a macOS-like keyboard experience on Windows 10/1
 
 ## 📄 License
 
-MIT License. Feel free to modify and share.
+MIT License. Copyright (c) 2026 Zjedz Mnie sp. z o.o.
