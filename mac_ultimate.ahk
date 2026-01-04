@@ -1,10 +1,6 @@
 ﻿; ==============================================================================
-; MAC OS ULTIMATE V23 (LOGIC DISPATCH ARCHITECTURE)
+; MAC OS ULTIMATE V24 (LOGIC DISPATCH - 100% STABLE)
 ; ==============================================================================
-; This version solves "Duplicate Hotkey" errors by defining hotkeys ONCE
-; and using internal logic (if/else) to decide what they do based on the active window.
-; ==============================================================================
-
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 #UseHook
@@ -37,38 +33,37 @@ GroupAdd "Editors", "ahk_exe pycharm64.exe"
 GroupAdd "Editors", "ahk_exe webstorm64.exe"
 
 ; ==============================================================================
-; SECTION 1: SYSTEM SHORTCUT KILLERS (GLOBAL)
+; SECTION 1: SYSTEM KILLERS (Global Overrides)
 ; ==============================================================================
 ; These run everywhere to block Windows native behaviors.
 
-$#c::Send "^c"          ; Copilot Block
-$#f::Send "^f"          ; Feedback Hub Block
-$#+f::Send "^+f"        ; Web Search Block
-$#r::Send "^r"          ; Run Block
-$#e::Send "^e"          ; Explorer Block
-$#a::Send "^a"          ; Action Center Block
-$#s::Send "^s"          ; Search Block
-$#v::Send "^v"          ; Clipboard Block
-$#x::Send "^x"          ; Win+X Block
-$#z::Send "^z"
-$#+z::Send "^+z"
+$#c::Send "^c"          ; Kills Copilot
+$#f::Send "^f"          ; Kills Feedback Hub
+$#+f::Send "^+f"        ; Kills Web Search
+$#r::Send "^r"          ; Kills Run
+$#e::Send "^e"          ; Kills Explorer Launch
+$#a::Send "^a"          ; Kills Action Center
+$#s::Send "^s"          ; Kills Search
+$#v::Send "^v"          ; Kills Clipboard History
+$#x::Send "^x"          ; Kills Win+X Menu
+$#z::Send "^z"          ; Undo
+$#+z::Send "^+z"        ; Redo
+$#l::Send "^l"          ; Kills Lock Screen (careful!)
+$#t::Send "^t"          ; Kills Taskbar Focus
 
 ; ==============================================================================
-; SECTION 2: CORE REMAPPING (CMD <-> CTRL)
+; SECTION 2: CORE REMAPPING
 ; ==============================================================================
 
-; --- COMMAND (LWin) -> CONTROL ---
+; --- CMD (LWin) -> CTRL ---
 *LWin::Send "{Blind}{LCtrl DownR}"
 *LWin Up::Send "{Blind}{LCtrl Up}"
 
-; --- CONTROL (LCtrl) -> WIN (Smart Logic) ---
-; In Terminals: Acts as normal Ctrl (for SIGINT).
-; Elsewhere: Acts as Win Key (but blocks Start Menu on tap).
-
+; --- CTRL (LCtrl) -> WIN ---
 *LCtrl::
 {
     if WinActive("ahk_group Terminals") {
-        Send "{Blind}{LCtrl DownR}"
+        Send "{Blind}{LCtrl DownR}" ; Keep Ctrl in Terminals
     } else {
         Send "{Blind}{LWin DownR}"
     }
@@ -86,57 +81,65 @@ $#+z::Send "^+z"
 }
 
 ; ==============================================================================
-; SECTION 3: UNIFIED NAVIGATION & ACTIONS (NO DUPLICATES)
+; SECTION 3: THE MEGA DISPATCHER (All Navigation/Action Keys)
 ; ==============================================================================
+; This section handles context-sensitive keys to avoid duplicates.
 
 ; --- BACKSPACE ---
-; Explorer: Delete File
-; Global: Delete Line
 ^Backspace::
 {
     if WinActive("ahk_group Explorer")
-        Send "{Delete}"
+        Send "{Delete}"               ; Explorer: Delete File
     else
-        Send "+{Home}{Delete}"
+        Send "+{Home}{Delete}"        ; Global: Delete Line
 }
 
-; --- ARROWS (Cmd + Arrows) ---
-; Explorer: Navigation / Parent
-; Global: Start/End of Line/File
+; --- ENTER ---
+Enter::
+{
+    if WinActive("ahk_group Explorer")
+        Send "{F2}"                   ; Explorer: Rename
+    else
+        Send "{Enter}"                ; Global: Enter
+}
 
+; --- ARROW UP ---
 ^Up::
 {
     if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}!{Up}" ; Parent Folder
+        SendInput "{LCtrl Up}!{Up}"   ; Explorer: Parent Folder
     else
-        Send "^{Home}"              ; Top of File
+        Send "^{Home}"                ; Global: Top of File
 }
 
+; --- ARROW DOWN ---
 ^Down::
 {
     if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}{Enter}" ; Open Folder
+        SendInput "{LCtrl Up}{Enter}" ; Explorer: Open (Same Window)
     else
-        Send "^{End}"                 ; End of File
+        Send "^{End}"                 ; Global: End of File
 }
 
+; --- ARROW LEFT ---
 ^Left::
 {
     if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}!{Left}" ; Back
+        SendInput "{LCtrl Up}!{Left}" ; Explorer: Back
     else
-        Send "{Home}"                 ; Start of Line
+        Send "{Home}"                 ; Global: Start of Line
 }
 
+; --- ARROW RIGHT ---
 ^Right::
 {
     if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}!{Right}" ; Forward
+        SendInput "{LCtrl Up}!{Right}" ; Explorer: Forward
     else
-        Send "{End}"                   ; End of Line
+        Send "{End}"                   ; Global: End of Line
 }
 
-; --- BRACKETS (Cmd + [ / ]) ---
+; --- BRACKET LEFT ([) ---
 ^[::
 {
     if WinActive("ahk_group Explorer")
@@ -147,6 +150,7 @@ $#+z::Send "^+z"
         Send "^["
 }
 
+; --- BRACKET RIGHT (]) ---
 ^]::
 {
     if WinActive("ahk_group Explorer")
@@ -157,64 +161,89 @@ $#+z::Send "^+z"
         Send "^]"
 }
 
-; --- ENTER ---
-; Only remap in Explorer
-Enter::
+; --- COPY (Cmd+C) ---
+^c::
+{
+    if WinActive("ahk_group Terminals")
+        Send "^+c"
+    else
+        Send "^c"
+}
+
+; --- PASTE (Cmd+V) ---
+^v::
+{
+    if WinActive("ahk_group Terminals")
+        Send "^+v"
+    else
+        Send "^v"
+}
+
+; --- FIND (Cmd+F) ---
+^f::
+{
+    if WinActive("ahk_group Terminals")
+        Send "^+f"
+    else if WinActive("ahk_group Explorer")
+        Send "^e" ; Search Box in Explorer
+    else
+        Send "^f"
+}
+
+; --- NEW TAB/WINDOW (Cmd+N) ---
+^n::
 {
     if WinActive("ahk_group Explorer")
-        Send "{F2}"
+        Send "^n"
     else
-        Send "{Enter}"
+        Send "^n"
+}
+
+; --- NEW FOLDER/FILE (Cmd+Shift+N) ---
+^+n::
+{
+    if WinActive("ahk_group Explorer")
+        Send "^+n"
+    else if WinActive("ahk_group Editors")
+        Send "^+n" ; Go to File
+    else
+        Send "^+n"
 }
 
 ; ==============================================================================
-; SECTION 4: SPECIFIC APP OVERRIDES
+; SECTION 4: BROWSER SPECIFICS
 ; ==============================================================================
-
-; --- BROWSER SPECIFICS ---
 #HotIf WinActive("ahk_group Browsers")
-    ^!i::Send "{F12}"
-    ^+j::Send "^j"
-    ^y::Send "^h"
-    ^l::Send "^l"
-    ^t::Send "^t"
-    ^+t::Send "^+t"
+    ^!i::Send "{F12}"      ; DevTools
+    ^+j::Send "^j"         ; Downloads
+    ^y::Send "^h"          ; History
+    ^l::Send "^l"          ; Address Bar
+    ^t::Send "^t"          ; New Tab
+    ^+t::Send "^+t"        ; Reopen Tab
 #HotIf
 
-; --- EXPLORER SPECIFICS ---
-#HotIf WinActive("ahk_group Explorer")
-    ^+Backspace::Send "+{Delete}"
-    ^n::Send "^n"
-    ^+n::Send "^+n"
-    ^i::Send "!{Enter}"
-    ^+f::Send "^e"
-#HotIf
-
-; --- TERMINAL SPECIFICS ---
-#HotIf WinActive("ahk_group Terminals")
-    ^c::Send "^+c"
-    ^v::Send "^+v"
-    ^f::Send "^+f"
-#HotIf
-
-; --- EDITOR SPECIFICS (INTELLIJ) ---
+; ==============================================================================
+; SECTION 5: EDITOR SPECIFICS (IntelliJ / VS Code)
+; ==============================================================================
 #HotIf WinActive("ahk_group Editors")
-    $#1::Send "!1"
-    $#7::Send "!7"
-    $#9::Send "!9"
-    $#`::Send "!{F12}"
-    $#/::Send "^/"
-    $#d::Send "^d"
+    ; Alt mapping for tool windows
+    $#1::Send "!1"         ; Project
+    $#7::Send "!7"         ; Structure
+    $#9::Send "!9"         ; Git
+    $#`::Send "!{F12}"     ; Terminal
+    $#/::Send "^/"         ; Comment
+    $#d::Send "^d"         ; Duplicate
+    $#b::Send "^b"         ; Declaration
 #HotIf
 
 ; ==============================================================================
-; SECTION 5: GLOBAL UTILS & F-KEYS
+; SECTION 6: GLOBAL UTILS & F-KEYS
 ; ==============================================================================
-#HotIf ; GLOBAL
+#HotIf ; GLOBAL SCOPE
 
 ; F-Keys (Standard Mode Fix)
-F3::Send "#{Tab}"
-F4::Send "^{Esc}"
+F3::Send "#{Tab}"       ; Mission Control
+F4::Send "^{Esc}"       ; Launchpad
 F7::Send "{Media_Prev}"
 F8::Send "{Media_Play_Pause}"
 F9::Send "{Media_Next}"
@@ -223,12 +252,12 @@ F11::Send "{Volume_Down}"
 F12::Send "{Volume_Up}"
 
 ; System
-^Space::Send "^{Esc}"
-LCtrl & Tab::AltTab
-^q::Send "!{F4}"
-^m::WinMinimize "A"
-^!Esc::Send "^+{Esc}"
-^,::Send "^!s"
+^Space::Send "^{Esc}"   ; Start Menu
+LCtrl & Tab::AltTab     ; Alt-Tab
+^q::Send "!{F4}"        ; Quit
+^m::WinMinimize "A"     ; Minimize
+^!Esc::Send "^+{Esc}"   ; Task Manager
+^,::Send "^!s"          ; Settings
 
 ; Screenshots
 ^+3::Send "{PrintScreen}"
@@ -250,7 +279,7 @@ LCtrl & Tab::AltTab
 !Right::Send "^{Right}"
 !Backspace::Send "^{Backspace}"
 
-; Mouse
+; Mouse & Hardware
 LCtrl & LButton::Click "Right"
 RAlt::RAlt
 SC029::Send "{Text}§"
