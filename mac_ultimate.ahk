@@ -1,5 +1,5 @@
 ﻿; ==============================================================================
-; MAC OS ULTIMATE V28 (FINAL STABLE - STRICTLY SORTED)
+; MAC OS ULTIMATE V29 (COLLAPSED LOGIC - NO DUPLICATES POSSIBLE)
 ; ==============================================================================
 #Requires AutoHotkey v2.0
 #SingleInstance Force
@@ -25,16 +25,41 @@ GroupAdd "Terminals", "ahk_exe cmd.exe"
 GroupAdd "Terminals", "ahk_exe mintty.exe"
 GroupAdd "Terminals", "ahk_class ConsoleWindowClass"
 
-GroupAdd "Editors", "ahk_exe idea64.exe"      ; IntelliJ
-GroupAdd "Editors", "ahk_exe Code.exe"        ; VS Code
-GroupAdd "Editors", "ahk_exe studio64.exe"    ; Android Studio
+GroupAdd "Editors", "ahk_exe idea64.exe"      
+GroupAdd "Editors", "ahk_exe Code.exe"        
+GroupAdd "Editors", "ahk_exe studio64.exe"    
 GroupAdd "Editors", "ahk_exe pycharm64.exe"
 GroupAdd "Editors", "ahk_exe webstorm64.exe"
 
 ; ==============================================================================
-; 1. MODIFIERS (Physical Remap)
+; 1. SYSTEM KILLERS (WIN KEYS)
 ; ==============================================================================
+$#c::Send "^c"
+$#f::Send "^f"
+$#+f::Send "^+f"
+$#r::Send "^r"
+$#e::Send "^e"
+$#a::Send "^a"
+$#s::Send "^s"
+$#t::Send "^t"
+$#v::Send "^v"
+$#x::Send "^x"
+$#z::Send "^z"
+$#+z::Send "^+z"
+$#l::Send "^l"
 
+; IntelliJ / Editor Overrides for Win-Keys
+$#1::Send WinActive("ahk_group Editors") ? "!1" : "#1"
+$#7::Send WinActive("ahk_group Editors") ? "!7" : "#7"
+$#9::Send WinActive("ahk_group Editors") ? "!9" : "#9"
+$#`::Send WinActive("ahk_group Editors") ? "!{F12}" : "#{`}"
+$#/::Send WinActive("ahk_group Editors") ? "^/" : "#/"
+$#b::Send WinActive("ahk_group Editors") ? "^b" : "#b"
+$#d::Send WinActive("ahk_group Editors") ? "^d" : "#d"
+
+; ==============================================================================
+; 2. MODIFIERS
+; ==============================================================================
 *LWin::Send "{Blind}{LCtrl DownR}"
 *LWin Up::Send "{Blind}{LCtrl Up}"
 
@@ -58,53 +83,108 @@ GroupAdd "Editors", "ahk_exe webstorm64.exe"
 }
 
 ; ==============================================================================
-; 2. WIN KEY OVERRIDES (System Killers & IntelliJ)
+; 3. UNIFIED DISPATCHER (Merged Hotkeys)
 ; ==============================================================================
-; All triggers starting with $# (Physical Win Key). Sorted Alphabetically/Numerically.
 
-$#1::Send WinActive("ahk_group Editors") ? "!1" : "#1"
-$#7::Send WinActive("ahk_group Editors") ? "!7" : "#7"
-$#9::Send WinActive("ahk_group Editors") ? "!9" : "#9"
-$#`::Send WinActive("ahk_group Editors") ? "!{F12}" : "#{`}"
-$#/::Send WinActive("ahk_group Editors") ? "^/" : "#/"
+; --- ARROWS (HANDLES BOTH NORMAL AND SHIFT+ARROW) ---
+; Zamiast definiować ^Up i +^Up osobno, robimy to raz.
 
-$#a::Send "^a"   ; Action Center -> Select All
-$#b::Send WinActive("ahk_group Editors") ? "^b" : "#b"
-$#c::Send "^c"   ; Copilot -> Copy
-$#d::Send WinActive("ahk_group Editors") ? "^d" : "#d"
-$#e::Send "^e"   ; Explorer -> Recent Files
-$#f::Send "^f"   ; Feedback -> Find
-$#+f::Send "^+f" ; WebSearch -> Find in Path
-$#l::Send "^l"   ; Lock -> Address Bar
-$#r::Send "^r"   ; Run -> Refresh/Replace
-$#s::Send "^s"   ; Search -> Save
-$#t::Send "^t"   ; Taskbar -> New Tab
-$#v::Send "^v"   ; Clipboard -> Paste
-$#x::Send "^x"   ; WinX -> Cut
-$#z::Send "^z"   ; Undo
-$#+z::Send "^+z" ; Redo
-
-; ==============================================================================
-; 3. CTRL KEY DISPATCHER (Physical Cmd)
-; ==============================================================================
-; All triggers starting with ^ (Logical Ctrl / Physical Cmd).
-
-^Backspace::
+*^Up::
 {
-    if WinActive("ahk_group Explorer")
-        Send "{Delete}"
-    else
-        Send "+{Home}{Delete}"
+    if GetKeyState("Shift", "P") {
+        ; SHIFT + CMD + UP
+        Send "+^{Home}" ; Select to top
+    } else {
+        ; CMD + UP
+        if WinActive("ahk_group Explorer")
+            SendInput "{LCtrl Up}!{Up}"   ; Parent Folder
+        else
+            Send "^{Home}"                ; Go to top
+    }
 }
 
-^+Backspace::
+*^Down::
 {
-    if WinActive("ahk_group Explorer")
-        Send "+{Delete}"
-    else
-        Send "^+{Backspace}"
+    if GetKeyState("Shift", "P") {
+        ; SHIFT + CMD + DOWN
+        Send "+^{End}" ; Select to bottom
+    } else {
+        ; CMD + DOWN
+        if WinActive("ahk_group Explorer")
+            SendInput "{LCtrl Up}{Enter}" ; Open
+        else
+            Send "^{End}"                 ; Go to bottom
+    }
 }
 
+*^Left::
+{
+    if GetKeyState("Shift", "P") {
+        ; SHIFT + CMD + LEFT
+        Send "+{Home}" ; Select to start
+    } else {
+        ; CMD + LEFT
+        if WinActive("ahk_group Explorer")
+            SendInput "{LCtrl Up}!{Left}" ; Back
+        else
+            Send "{Home}"                 ; Go to start
+    }
+}
+
+*^Right::
+{
+    if GetKeyState("Shift", "P") {
+        ; SHIFT + CMD + RIGHT
+        Send "+{End}" ; Select to end
+    } else {
+        ; CMD + RIGHT
+        if WinActive("ahk_group Explorer")
+            SendInput "{LCtrl Up}!{Right}" ; Forward
+        else
+            Send "{End}"                   ; Go to end
+    }
+}
+
+; --- BACKSPACE ---
+*^Backspace::
+{
+    if GetKeyState("Shift", "P") {
+        ; CMD + SHIFT + BACKSPACE
+        if WinActive("ahk_group Explorer")
+            Send "+{Delete}"
+        else
+            Send "^+{Backspace}"
+    } else {
+        ; CMD + BACKSPACE
+        if WinActive("ahk_group Explorer")
+            Send "{Delete}"
+        else
+            Send "+{Home}{Delete}"
+    }
+}
+
+; --- BRACKETS ---
+*^[::
+{
+    if WinActive("ahk_group Explorer")
+        SendInput "{LCtrl Up}!{Left}"
+    else if WinActive("ahk_group Editors")
+        Send "^!{Left}"
+    else
+        Send "^["
+}
+
+*^]::
+{
+    if WinActive("ahk_group Explorer")
+        SendInput "{LCtrl Up}!{Right}"
+    else if WinActive("ahk_group Editors")
+        Send "^!{Right}"
+    else
+        Send "^]"
+}
+
+; --- ACTIONS ---
 ^c:: Send WinActive("ahk_group Terminals") ? "^+c" : "^c"
 ^v:: Send WinActive("ahk_group Terminals") ? "^+v" : "^v"
 
@@ -118,13 +198,6 @@ $#+z::Send "^+z" ; Redo
         Send "^f"
 }
 
-^i:: Send WinActive("ahk_group Explorer") ? "!{Enter}" : "^i"
-^!i:: Send WinActive("ahk_group Browsers") ? "{F12}" : "^!i"
-
-^+j:: Send WinActive("ahk_group Browsers") ? "^j" : "^+j"
-
-^n:: Send "^n" ; Universal (Handled by LWin map, explicit here for clarity)
-
 ^+n::
 {
     if WinActive("ahk_group Explorer")
@@ -135,8 +208,12 @@ $#+z::Send "^+z" ; Redo
         Send "^+n"
 }
 
+^i:: Send WinActive("ahk_group Explorer") ? "!{Enter}" : "^i"
+^!i:: Send WinActive("ahk_group Browsers") ? "{F12}" : "^!i"
+^+j:: Send WinActive("ahk_group Browsers") ? "^j" : "^+j"
 ^y:: Send WinActive("ahk_group Browsers") ? "^h" : "^y"
 
+; --- SYSTEM & MISC ---
 ^q::Send "!{F4}"
 ^m::WinMinimize "A"
 ^,::Send "^!s"
@@ -153,82 +230,12 @@ LCtrl & Tab::AltTab
     return
 }
 
-; --- Navigation (Arrows) ---
-
-^Up::
-{
-    if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}!{Up}"
-    else
-        Send "^{Home}"
-}
-
-^Down::
-{
-    if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}{Enter}"
-    else
-        Send "^{End}"
-}
-
-^Left::
-{
-    if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}!{Left}"
-    else
-        Send "{Home}"
-}
-
-^Right::
-{
-    if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}!{Right}"
-    else
-        Send "{End}"
-}
-
-; --- Selection (Shift + Arrows) ---
-+^Up::Send "+^{Home}"
-+^Down::Send "+^{End}"
-+^Left::Send "+{Home}"
-+^Right::Send "+{End}"
-
-; --- Brackets ---
-^[::
-{
-    if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}!{Left}"
-    else if WinActive("ahk_group Editors")
-        Send "^!{Left}"
-    else
-        Send "^["
-}
-
-^]::
-{
-    if WinActive("ahk_group Explorer")
-        SendInput "{LCtrl Up}!{Right}"
-    else if WinActive("ahk_group Editors")
-        Send "^!{Right}"
-    else
-        Send "^]"
-}
-
-; ==============================================================================
-; 4. ALT / OPTION KEY DISPATCHER
-; ==============================================================================
-
+; Alt Navigation
 !Left::Send "^{Left}"
 !Right::Send "^{Right}"
 !Backspace::Send "^{Backspace}"
 
-; ==============================================================================
-; 5. FUNCTION KEYS & MISC
-; ==============================================================================
-
-Enter:: Send WinActive("ahk_group Explorer") ? "{F2}" : "{Enter}"
-
-; F-Keys (For Standard Mode)
+; F-Keys
 F3::Send "#{Tab}"
 F4::Send "^{Esc}"
 F7::Send "{Media_Prev}"
@@ -237,8 +244,9 @@ F9::Send "{Media_Next}"
 F10::Send "{Volume_Mute}"
 F11::Send "{Volume_Down}"
 F12::Send "{Volume_Up}"
+Enter:: Send WinActive("ahk_group Explorer") ? "{F2}" : "{Enter}"
 
-; Hardware Fixes
+; Mouse / Hardware
 LCtrl & LButton::Click "Right"
 RAlt::RAlt
 SC029::Send "{Text}§"
