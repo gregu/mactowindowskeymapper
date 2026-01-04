@@ -1,122 +1,73 @@
 ﻿; ==============================================================================
-; MAC OS ULTIMATE V36 (INTELLIJ INJECTION + DUPLICATE CONTROL)
+; MAC OS ULTIMATE V41 (NO FN+ESC REQUIRED - MEDIA MODE DEFAULT)
 ; ==============================================================================
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 #UseHook
 InstallKeybdHook
 
-; Maska klawisza Win (żeby Start nie wyskakiwał przy LCtrl)
 A_MenuMaskKey := "vkE8"
 
-; --- DEFINICJA GRUP ---
-GroupAdd "Editors", "ahk_exe idea64.exe"      ; IntelliJ
-GroupAdd "Editors", "ahk_exe Code.exe"        ; VS Code
-GroupAdd "Explorer", "ahk_class CabinetWClass"
+; --- KLUCZOWY SWAP MODYFIKATORÓW ---
+LWin::LCtrl
+LCtrl::LWin
 
 ; ==============================================================================
-; SECTION 1: CORE REMAPPING (GLOBAL)
+; 1. SYSTEM & MULTIMEDIA
 ; ==============================================================================
 
-; Cmd (LWin) -> Ctrl
-*LWin::Send "{Blind}{LCtrl DownR}"
-*LWin Up::Send "{Blind}{LCtrl Up}"
+; Klawisze F3 i F4 na MX Keys w trybie Media wysyłają specjalne kody (SC).
+; Mapujemy je na Mission Control i Launchpad.
+; Uwaga: SC13F i SC121 to kody przycisków "Task View" i "Search/Start" w Logitech.
 
-; Ctrl (LCtrl) -> Win (Z blokadą Menu Start)
-*LCtrl::Send "{Blind}{LWin DownR}"
-*LCtrl Up::
-{
-    Send "{Blind}{LWin Up}"
-    if (A_PriorKey = "LCtrl")
-        Send "{Blind}{vkE8}"
-}
+SC13F::Send "#{Tab}"        ; Przycisk "Task View" (nad F3) -> Mission Control
+SC121::Send "^{Esc}"        ; Przycisk "Search" (nad F4) -> Launchpad
 
-; ==============================================================================
-; SECTION 2: INTELLIJ "CLINCH" (Tylko dla IntelliJ)
-; ==============================================================================
-; Używamy $ oraz Scancode, aby Windows nie przechwycił Win+F/Win+R.
+; Jeśli Twoje F3/F4 nadal nie działają, odkomentuj poniższe standardowe:
+; $F3::Send "#{Tab}"
+; $F4::Send "^{Esc}"
 
-#HotIf WinActive("ahk_exe idea64.exe")
+; Reszta multimediów (Głośność, Jasność) działa NATYWNIE z klawiatury.
+; Nie musimy ich pisać w skrypcie, dzięki czemu oszczędzasz miejsce i czas.
 
-    ; CMD+F (Find)
-    $#f::
-    {
-        Send "{LCtrl down}"
-        Sleep 15
-        Send "{sc021 down}" ; F
-        Sleep 15
-        Send "{sc021 up}{LCtrl up}"
-    }
-
-    ; CMD+R (Replace)
-    $#r::
-    {
-        Send "{LCtrl down}"
-        Sleep 15
-        Send "{sc013 down}" ; R
-        Sleep 15
-        Send "{sc013 up}{LCtrl up}"
-    }
-
-    ; CMD+SHIFT+F (Find in Path)
-    $#+f::
-    {
-        Send "{LCtrl down}{LShift down}"
-        Sleep 15
-        Send "{sc021 down}" ; F
-        Sleep 15
-        Send "{sc021 up}{LShift up}{LCtrl up}"
-    }
-
-    ; CMD+SHIFT+R (Replace in Path)
-    $#+r::
-    {
-        Send "{LCtrl down}{LShift down}"
-        Sleep 15
-        Send "{sc013 down}" ; R
-        Sleep 15
-        Send "{sc013 up}{LShift up}{LCtrl up}"
-    }
-
-#HotIf
+; --- SCREENSHOTS ---
+^+3::Send "{PrintScreen}"
+^+4::Send "#+s"
 
 ; ==============================================================================
-; SECTION 3: GLOBAL LOGIC (Z wyłączeniem IntelliJ dla duplikatów)
+; 2. NAWIGACJA & EDYCJA (Cmd to teraz Ctrl)
 ; ==============================================================================
 
-; Cmd+Space -> Start Menu
-^Space::Send "^{Esc}"
+^Space::Send "^{Esc}"       ; Cmd + Space
+LCtrl & Tab::AltTab         ; Cmd + Tab
 
-; Cmd+Tab -> Alt+Tab
-LCtrl & Tab::AltTab
+^Left::Send "{Home}"
+^Right::Send "{End}"
+^Up::Send "^{Home}"
+^Down::Send "^{End}"
 
-; --- NAWIGACJA (Działa wszędzie) ---
-; Używamy *^, aby obsłużyć Cmd+Arrows oraz Cmd+Shift+Arrows w jednym bloku
-*^Left::  Send (GetKeyState("Shift", "P") ? "+{Home}" : "{Home}")
-*^Right:: Send (GetKeyState("Shift", "P") ? "+{End}" : "{End}")
-*^Up::    Send (GetKeyState("Shift", "P") ? "+^{Home}" : "^{Home}")
-*^Down::  Send (GetKeyState("Shift", "P") ? "+^{End}" : "^{End}")
++^Left::Send "+{Home}"
++^Right::Send "+{End}"
++^Up::Send "+^{Home}"
++^Down::Send "+^{End}"
 
-; --- EDYCJA ---
+!Left::Send "^{Left}"
+!Right::Send "^{Right}"
+!Backspace::Send "^{Backspace}"
+
 ^Backspace::Send "+{Home}{Delete}"
+^q::Send "!{F4}"            ; Cmd + Q
 
-; --- EKSPLORATOR ---
-#HotIf WinActive("ahk_group Explorer")
+; ==============================================================================
+; 3. EXPLORER FIXES
+; ==============================================================================
+
+#HotIf WinActive("ahk_class CabinetWClass")
     Enter::Send "{F2}"
     ^Down::Send "{Enter}"
     ^Up::Send "!{Up}"
-    ^Backspace::Send "{Delete}"
 #HotIf
 
-; --- MULTIMEDIA ---
-F7::Send "{Media_Prev}"
-F8::Send "{Media_Play_Pause}"
-F9::Send "{Media_Next}"
-F11::Send "{Volume_Down}"
-F12::Send "{Volume_Up}"
-
-; --- HARDWARE ---
-SC029::Send "{Text}§"       ; Klawisz pod ESC
+; Klawisz pod ESC (§/±)
+SC029::Send "{Text}§"
 +SC029::Send "{Text}±"
-LCtrl & LButton::Click "Right"
-RAlt::RAlt
