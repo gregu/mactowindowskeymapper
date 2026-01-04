@@ -1,5 +1,5 @@
 ﻿; ==============================================================================
-; MAC OS ULTIMATE V27 (THE MONOLITH - STATICALLY VERIFIED)
+; MAC OS ULTIMATE V28 (FINAL STABLE - STRICTLY SORTED)
 ; ==============================================================================
 #Requires AutoHotkey v2.0
 #SingleInstance Force
@@ -9,7 +9,7 @@ InstallMouseHook
 
 A_MenuMaskKey := "vkE8"
 
-; --- GROUPS DEFINITION ---
+; --- GROUPS ---
 GroupAdd "Explorer", "ahk_class CabinetWClass"
 GroupAdd "Explorer", "ahk_class ExploreWClass"
 
@@ -32,78 +32,9 @@ GroupAdd "Editors", "ahk_exe pycharm64.exe"
 GroupAdd "Editors", "ahk_exe webstorm64.exe"
 
 ; ==============================================================================
-; SECTION 1: SYSTEM OVERRIDES (WIN-KEYS) - DEFINED ONCE
+; 1. MODIFIERS (Physical Remap)
 ; ==============================================================================
-; These intercept physical Win+Key presses immediately.
 
-$#c::Send "^c"          ; Copilot -> Copy
-$#f::Send "^f"          ; Feedback -> Find
-$#+f::Send "^+f"        ; WebSearch -> Find in Path
-$#r::Send "^r"          ; Run -> Refresh/Replace
-$#e::Send "^e"          ; Explorer -> Recent Files
-$#a::Send "^a"          ; Action Center -> Select All
-$#s::Send "^s"          ; Search -> Save
-$#v::Send "^v"          ; Clipboard -> Paste
-$#x::Send "^x"          ; Menu -> Cut
-$#z::Send "^z"          ; Undo
-$#+z::Send "^+z"        ; Redo
-$#t::Send "^t"          ; Taskbar -> New Tab
-$#l::Send "^l"          ; Lock -> Address Bar (Browsers)
-
-; Special Case: Win+1, Win+7 etc (Taskbar shortcuts vs IntelliJ)
-$#1::
-{
-    if WinActive("ahk_group Editors")
-        Send "!1"
-    else
-        Send "#1"
-}
-$#7::
-{
-    if WinActive("ahk_group Editors")
-        Send "!7"
-    else
-        Send "#7"
-}
-$#9::
-{
-    if WinActive("ahk_group Editors")
-        Send "!9"
-    else
-        Send "#9"
-}
-$#`::
-{
-    if WinActive("ahk_group Editors")
-        Send "!{F12}"
-    else
-        Send "#{`}"
-}
-$#/::
-{
-    if WinActive("ahk_group Editors")
-        Send "^/"
-    else
-        Send "#/"
-}
-$#b::
-{
-    if WinActive("ahk_group Editors")
-        Send "^b"
-    else
-        Send "#b"
-}
-$#d::
-{
-    if WinActive("ahk_group Editors")
-        Send "^d"
-    else
-        Send "#d"
-}
-
-; ==============================================================================
-; SECTION 2: MODIFIERS RE-MAP
-; ==============================================================================
 *LWin::Send "{Blind}{LCtrl DownR}"
 *LWin Up::Send "{Blind}{LCtrl Up}"
 
@@ -127,12 +58,102 @@ $#d::
 }
 
 ; ==============================================================================
-; SECTION 3: THE MONOLITH (ALL CTRL KEYS DEFINED ONCE)
+; 2. WIN KEY OVERRIDES (System Killers & IntelliJ)
 ; ==============================================================================
-; Here we handle ALL behavior for logical Ctrl keys (Physical Cmd).
-; NO #HotIf blocks allowed for Ctrl keys below this line!
+; All triggers starting with $# (Physical Win Key). Sorted Alphabetically/Numerically.
 
-; --- NAVIGATION ---
+$#1::Send WinActive("ahk_group Editors") ? "!1" : "#1"
+$#7::Send WinActive("ahk_group Editors") ? "!7" : "#7"
+$#9::Send WinActive("ahk_group Editors") ? "!9" : "#9"
+$#`::Send WinActive("ahk_group Editors") ? "!{F12}" : "#{`}"
+$#/::Send WinActive("ahk_group Editors") ? "^/" : "#/"
+
+$#a::Send "^a"   ; Action Center -> Select All
+$#b::Send WinActive("ahk_group Editors") ? "^b" : "#b"
+$#c::Send "^c"   ; Copilot -> Copy
+$#d::Send WinActive("ahk_group Editors") ? "^d" : "#d"
+$#e::Send "^e"   ; Explorer -> Recent Files
+$#f::Send "^f"   ; Feedback -> Find
+$#+f::Send "^+f" ; WebSearch -> Find in Path
+$#l::Send "^l"   ; Lock -> Address Bar
+$#r::Send "^r"   ; Run -> Refresh/Replace
+$#s::Send "^s"   ; Search -> Save
+$#t::Send "^t"   ; Taskbar -> New Tab
+$#v::Send "^v"   ; Clipboard -> Paste
+$#x::Send "^x"   ; WinX -> Cut
+$#z::Send "^z"   ; Undo
+$#+z::Send "^+z" ; Redo
+
+; ==============================================================================
+; 3. CTRL KEY DISPATCHER (Physical Cmd)
+; ==============================================================================
+; All triggers starting with ^ (Logical Ctrl / Physical Cmd).
+
+^Backspace::
+{
+    if WinActive("ahk_group Explorer")
+        Send "{Delete}"
+    else
+        Send "+{Home}{Delete}"
+}
+
+^+Backspace::
+{
+    if WinActive("ahk_group Explorer")
+        Send "+{Delete}"
+    else
+        Send "^+{Backspace}"
+}
+
+^c:: Send WinActive("ahk_group Terminals") ? "^+c" : "^c"
+^v:: Send WinActive("ahk_group Terminals") ? "^+v" : "^v"
+
+^f::
+{
+    if WinActive("ahk_group Terminals")
+        Send "^+f"
+    else if WinActive("ahk_group Explorer")
+        Send "^e"
+    else
+        Send "^f"
+}
+
+^i:: Send WinActive("ahk_group Explorer") ? "!{Enter}" : "^i"
+^!i:: Send WinActive("ahk_group Browsers") ? "{F12}" : "^!i"
+
+^+j:: Send WinActive("ahk_group Browsers") ? "^j" : "^+j"
+
+^n:: Send "^n" ; Universal (Handled by LWin map, explicit here for clarity)
+
+^+n::
+{
+    if WinActive("ahk_group Explorer")
+        Send "^+n"
+    else if WinActive("ahk_group Editors")
+        Send "^+n"
+    else
+        Send "^+n"
+}
+
+^y:: Send WinActive("ahk_group Browsers") ? "^h" : "^y"
+
+^q::Send "!{F4}"
+^m::WinMinimize "A"
+^,::Send "^!s"
+^Space::Send "^{Esc}"
+LCtrl & Tab::AltTab
+^!Esc::Send "^+{Esc}"
+
+; Screenshots
+^+3::Send "{PrintScreen}"
+^+4::
+{
+    SendInput "{LCtrl Up}"
+    SendInput "#+s"
+    return
+}
+
+; --- Navigation (Arrows) ---
 
 ^Up::
 {
@@ -166,6 +187,13 @@ $#d::
         Send "{End}"
 }
 
+; --- Selection (Shift + Arrows) ---
++^Up::Send "+^{Home}"
++^Down::Send "+^{End}"
++^Left::Send "+{Home}"
++^Right::Send "+{End}"
+
+; --- Brackets ---
 ^[::
 {
     if WinActive("ahk_group Explorer")
@@ -186,109 +214,21 @@ $#d::
         Send "^]"
 }
 
-; --- EDITING & ACTIONS ---
-
-^Backspace::
-{
-    if WinActive("ahk_group Explorer")
-        Send "{Delete}"
-    else
-        Send "+{Home}{Delete}"
-}
-
-Enter::
-{
-    if WinActive("ahk_group Explorer")
-        Send "{F2}"
-    else
-        Send "{Enter}"
-}
-
-^f::
-{
-    if WinActive("ahk_group Terminals")
-        Send "^+f"
-    else if WinActive("ahk_group Explorer")
-        Send "^e"
-    else
-        Send "^f"
-}
-
-^c::
-{
-    if WinActive("ahk_group Terminals")
-        Send "^+c"
-    else
-        Send "^c"
-}
-
-^v::
-{
-    if WinActive("ahk_group Terminals")
-        Send "^+v"
-    else
-        Send "^v"
-}
-
-; --- BROWSER / SPECIALS ---
-; Mac Cmd+Y is History. Windows Ctrl+Y is Redo.
-; We need logic to fix this overlap.
-^y::
-{
-    if WinActive("ahk_group Browsers")
-        Send "^h" ; History
-    else
-        Send "^y" ; Redo (Global)
-}
-
-; Mac Cmd+Shift+J is Downloads. Windows Ctrl+J is Downloads.
-; But since we mapped Cmd->Ctrl, Cmd+Shift+J becomes Ctrl+Shift+J (Console).
-; We need to map it back to Ctrl+J for browsers.
-^+j::
-{
-    if WinActive("ahk_group Browsers")
-        Send "^j"
-    else
-        Send "^+j"
-}
-
-; DevTools (Cmd+Opt+I -> F12)
-^!i::
-{
-    if WinActive("ahk_group Browsers")
-        Send "{F12}"
-    else
-        Send "^!i"
-}
-
-; Properties in Explorer (Cmd+I)
-^i::
-{
-    if WinActive("ahk_group Explorer")
-        Send "!{Enter}"
-    else
-        Send "^i"
-}
-
-; New Folder / Go To File
-^+n::
-{
-    if WinActive("ahk_group Explorer")
-        Send "^+n"
-    else if WinActive("ahk_group Editors")
-        Send "^+n"
-    else
-        Send "^+n"
-}
-
-; Note: ^n (New Window) and ^t (New Tab) work natively via *LWin map.
-; No need to redefine them unless logic changes.
-
 ; ==============================================================================
-; SECTION 4: GLOBAL F-KEYS & UTILS
+; 4. ALT / OPTION KEY DISPATCHER
 ; ==============================================================================
 
-; F-Keys (Standard Mode)
+!Left::Send "^{Left}"
+!Right::Send "^{Right}"
+!Backspace::Send "^{Backspace}"
+
+; ==============================================================================
+; 5. FUNCTION KEYS & MISC
+; ==============================================================================
+
+Enter:: Send WinActive("ahk_group Explorer") ? "{F2}" : "{Enter}"
+
+; F-Keys (For Standard Mode)
 F3::Send "#{Tab}"
 F4::Send "^{Esc}"
 F7::Send "{Media_Prev}"
@@ -298,35 +238,7 @@ F10::Send "{Volume_Mute}"
 F11::Send "{Volume_Down}"
 F12::Send "{Volume_Up}"
 
-; System
-^Space::Send "^{Esc}"
-LCtrl & Tab::AltTab
-^q::Send "!{F4}"
-^m::WinMinimize "A"
-^!Esc::Send "^+{Esc}"
-^,::Send "^!s"
-
-; Screenshots
-^+3::Send "{PrintScreen}"
-^+4::
-{
-    SendInput "{LCtrl Up}"
-    SendInput "#+s"
-    return
-}
-
-; Selection (Shift + Arrows)
-+^Left::Send "+{Home}"
-+^Right::Send "+{End}"
-+^Up::Send "+^{Home}"
-+^Down::Send "+^{End}"
-
-; Word Navigation (Alt + Arrows)
-!Left::Send "^{Left}"
-!Right::Send "^{Right}"
-!Backspace::Send "^{Backspace}"
-
-; Mouse & Hardware
+; Hardware Fixes
 LCtrl & LButton::Click "Right"
 RAlt::RAlt
 SC029::Send "{Text}§"
