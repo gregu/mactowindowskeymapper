@@ -1,56 +1,77 @@
-# Mac-Like Experience for Windows (No Admin Rights)
+# macOS Keybindings for Windows (AHK V20)
 
-This AutoHotKey script provides a comprehensive macOS-like experience on Windows 10/11. It is optimized for **Logitech MX Keys for Mac** and works without Administrator privileges (portable).
+This AutoHotkey v2 script remaps Windows keys to match macOS behavior. It is specifically optimized for developers using **IntelliJ/VS Code** and users of **Logitech MX Keys**.
 
-## 🚀 Features
+## ⌨️ 1. Hardware Setup (Logitech MX Keys)
+For the F-keys to function as described (F3 for Mission Control, F7-12 for Media), you must set your keyboard to **Standard F-Keys mode**.
 
-* **Command ⌘ is Control:** Use your thumb for Copy/Paste (`Cmd+C`, `Cmd+V`).
-* **Smart Finder (Explorer):**
-    * `Enter` renames files (like macOS).
-    * `Cmd + ↓` opens files/folders.
-    * `Cmd + ↑` goes to parent folder.
-    * `Cmd + Backspace` deletes files.
-* **Smart Terminal (WSL/PowerShell):**
-    * `Cmd+C` performs `Copy` (sends `Ctrl+Shift+C`).
-    * Physical `Ctrl` behaves natively (essential for `SIGINT` or `Vim`).
-* **Navigation:** macOS style text navigation (`Cmd+Arrows`, `Option+Arrows`).
-* **System:** `Cmd+Space` for Start Menu, `Cmd+Q` to close windows, `Cmd+Tab` to switch apps.
+1.  Locate the **Esc** key.
+2.  Press **`Fn + Esc`** once to toggle the lock.
+3.  **Result:** The keyboard should now send standard F1-F12 signals. The script will programmatically convert them back to Media keys where appropriate.
 
-## ⚙️ Prerequisites
+## 🚀 2. Installation (GitHub ZIP / Portable)
+You do not need a full system installation. You can run this from a folder.
 
-1.  **AutoHotKey v2.0 (Portable):**
-    * Go to the [AutoHotkey GitHub Releases page](https://github.com/AutoHotkey/AutoHotkey/releases).
-    * Scroll to the latest version and expand **Assets**.
-    * Download the **.zip** file (e.g., `AutoHotkey_2.0.18.zip`).
-    * Extract it to a folder of your choice.
-2.  **Keyboard State:** Ensure your `Command` key acts as the Windows key (opens Start Menu) when the script is OFF. This is the default behavior for most Mac keyboards plugged into Windows.
+1.  Go to the **[AutoHotkey GitHub Releases](https://github.com/AutoHotkey/AutoHotkey/releases)** page.
+2.  Download the latest **`.zip`** file (e.g., `AutoHotkey_2.0.x.zip`).
+3.  Extract the ZIP contents to a folder on your computer.
+4.  Download the `mac_ultimate_v20.ahk` script and place it in that folder.
+5.  **Run the script:**
+    * **Option A:** Drag and drop `mac_ultimate_v20.ahk` onto **`AutoHotkey64.exe`**.
+    * **Option B (Recommended):** Right-click `AutoHotkey64.exe` -> **Run as Administrator**, then browse and select the script.
+    * *Note: Administrator rights are required to override system shortcuts like Win+F (Search) and Win+C (Copilot).*
 
-## 📦 Installation
+## ⚡ 3. Key Mappings & Features
 
-1.  Download `mac_ultimate_v2.ahk` from this repository.
-2.  Drag and drop the `.ahk` file onto `AutoHotkey64.exe` (located in the folder where you extracted AutoHotkey).
-3.  Enjoy! (A green "H" icon in the system tray indicates it's running).
+### System & Modifiers
+| Key | Action |
+| :--- | :--- |
+| **Cmd (⌘)** | Acts as **Control**. |
+| **Control (⌃)** | Acts as **Windows Key** (Start Menu blocked on simple tap). |
+| **Cmd + Space** | Start Menu. |
+| **Cmd + Tab** | Alt + Tab. |
+| **Cmd + Q** | Quit Application (`Alt + F4`). |
+| **Cmd + M** | Minimize Window. |
 
-## ⌨️ Cheat Sheet
+### F-Row (Hybrid Mode)
+| Key | Action |
+| :--- | :--- |
+| **F3** | Mission Control (Task View). |
+| **F4** | Launchpad (Start Menu). |
+| **F7 - F9** | Media: Prev, Play/Pause, Next. |
+| **F10 - F12** | Volume: Mute, Down, Up. |
 
-| Action | Mac Shortcut (Your Hands) | Result on Windows |
-| :--- | :--- | :--- |
-| **Copy/Paste** | `Cmd + C/V` | Works everywhere |
-| **Rename File** | `Enter` | Renames file (F2) |
-| **Open File** | `Cmd + ↓` or `Cmd + O` | Opens file (Enter) |
-| **Delete File** | `Cmd + Backspace` | Deletes file |
-| **Spotlight** | `Cmd + Space` | Opens Start Menu |
-| **Right Click** | `Ctrl + Left Click` | Right Click |
+### IDEs (IntelliJ / VS Code)
+*Overrides Windows system shortcuts to prevent conflicts.*
+* **Cmd + Shift + F**: Find in Files (Blocks Windows Web Search).
+* **Cmd + F**: Find (Blocks Windows Feedback Hub).
+* **Cmd + C**: Copy (Blocks Windows Copilot).
+* **Cmd + /**: Comment Line.
+* **Cmd + 1**: Project View.
+* **Cmd + Backtick (`):** Open Terminal.
 
-## 🛠 Troubleshooting
+### Finder Navigation (Windows Explorer)
+* **Cmd + ↓**: Open file/folder.
+* **Cmd + ↑**: Go to parent folder.
+* **Cmd + [** or **Cmd + ←**: Back.
+* **Cmd + ]** or **Cmd + →**: Forward.
+* **Enter**: Rename file.
+* **Cmd + Backspace**: Delete file to Recycle Bin.
+* **Cmd + Shift + N**: Create New Folder.
 
-* **Script interfering with a game?**
-    * Press **`F8`** to Suspend the script. Press again to Resume.
-* **IntelliJ Shortcuts:**
-    * Keep IntelliJ keymap set to **"Windows"**. The script handles the translation so you can use your thumb (Command key) naturally.
-* **Terminal Copy/Paste not working?**
-    * Ensure your Windows Terminal settings map `Copy` to `Ctrl+Shift+C` and `Paste` to `Ctrl+Shift+V` (this is default).
+### Text Navigation (Global)
+* **Cmd + Arrows**: Jump to Start/End of line or Top/Bottom of file.
+* **Option (Alt) + Arrows**: Jump by Word.
+* **Cmd + Backspace**: Delete current line.
+* **Option + Backspace**: Delete previous word.
 
-## 📄 License
+### Browsers (Chrome / Edge / Firefox)
+* **Cmd + L**: Highlight Address Bar.
+* **Cmd + T**: New Tab.
+* **Cmd + Shift + T**: Reopen Closed Tab.
+* **Cmd + R**: Refresh.
+* **Cmd + Opt + I**: Developer Tools (F12).
 
-MIT License. Copyright (c) 2026 Zjedz Mnie sp. z o.o.
+### Screenshots
+* **Cmd + Shift + 3**: Print Screen.
+* **Cmd + Shift + 4**: Snipping Tool.
