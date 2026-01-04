@@ -1,5 +1,5 @@
 ﻿; ==============================================================================
-; MAC OS ULTIMATE V29 (COLLAPSED LOGIC - NO DUPLICATES POSSIBLE)
+; MAC OS ULTIMATE V30 (FINAL FIX - F8 CONFLICT RESOLVED)
 ; ==============================================================================
 #Requires AutoHotkey v2.0
 #SingleInstance Force
@@ -48,7 +48,7 @@ $#z::Send "^z"
 $#+z::Send "^+z"
 $#l::Send "^l"
 
-; IntelliJ / Editor Overrides for Win-Keys
+; IntelliJ Overrides
 $#1::Send WinActive("ahk_group Editors") ? "!1" : "#1"
 $#7::Send WinActive("ahk_group Editors") ? "!7" : "#7"
 $#9::Send WinActive("ahk_group Editors") ? "!9" : "#9"
@@ -86,76 +86,56 @@ $#d::Send WinActive("ahk_group Editors") ? "^d" : "#d"
 ; 3. UNIFIED DISPATCHER (Merged Hotkeys)
 ; ==============================================================================
 
-; --- ARROWS (HANDLES BOTH NORMAL AND SHIFT+ARROW) ---
-; Zamiast definiować ^Up i +^Up osobno, robimy to raz.
-
+; --- ARROWS (HANDLES SHIFT INTERNALLY) ---
 *^Up::
 {
-    if GetKeyState("Shift", "P") {
-        ; SHIFT + CMD + UP
-        Send "+^{Home}" ; Select to top
-    } else {
-        ; CMD + UP
-        if WinActive("ahk_group Explorer")
-            SendInput "{LCtrl Up}!{Up}"   ; Parent Folder
-        else
-            Send "^{Home}"                ; Go to top
-    }
+    if GetKeyState("Shift", "P")
+        Send "+^{Home}"
+    else if WinActive("ahk_group Explorer")
+        SendInput "{LCtrl Up}!{Up}"
+    else
+        Send "^{Home}"
 }
 
 *^Down::
 {
-    if GetKeyState("Shift", "P") {
-        ; SHIFT + CMD + DOWN
-        Send "+^{End}" ; Select to bottom
-    } else {
-        ; CMD + DOWN
-        if WinActive("ahk_group Explorer")
-            SendInput "{LCtrl Up}{Enter}" ; Open
-        else
-            Send "^{End}"                 ; Go to bottom
-    }
+    if GetKeyState("Shift", "P")
+        Send "+^{End}"
+    else if WinActive("ahk_group Explorer")
+        SendInput "{LCtrl Up}{Enter}"
+    else
+        Send "^{End}"
 }
 
 *^Left::
 {
-    if GetKeyState("Shift", "P") {
-        ; SHIFT + CMD + LEFT
-        Send "+{Home}" ; Select to start
-    } else {
-        ; CMD + LEFT
-        if WinActive("ahk_group Explorer")
-            SendInput "{LCtrl Up}!{Left}" ; Back
-        else
-            Send "{Home}"                 ; Go to start
-    }
+    if GetKeyState("Shift", "P")
+        Send "+{Home}"
+    else if WinActive("ahk_group Explorer")
+        SendInput "{LCtrl Up}!{Left}"
+    else
+        Send "{Home}"
 }
 
 *^Right::
 {
-    if GetKeyState("Shift", "P") {
-        ; SHIFT + CMD + RIGHT
-        Send "+{End}" ; Select to end
-    } else {
-        ; CMD + RIGHT
-        if WinActive("ahk_group Explorer")
-            SendInput "{LCtrl Up}!{Right}" ; Forward
-        else
-            Send "{End}"                   ; Go to end
-    }
+    if GetKeyState("Shift", "P")
+        Send "+{End}"
+    else if WinActive("ahk_group Explorer")
+        SendInput "{LCtrl Up}!{Right}"
+    else
+        Send "{End}"
 }
 
 ; --- BACKSPACE ---
 *^Backspace::
 {
     if GetKeyState("Shift", "P") {
-        ; CMD + SHIFT + BACKSPACE
         if WinActive("ahk_group Explorer")
             Send "+{Delete}"
         else
             Send "^+{Backspace}"
     } else {
-        ; CMD + BACKSPACE
         if WinActive("ahk_group Explorer")
             Send "{Delete}"
         else
@@ -239,7 +219,7 @@ LCtrl & Tab::AltTab
 F3::Send "#{Tab}"
 F4::Send "^{Esc}"
 F7::Send "{Media_Prev}"
-F8::Send "{Media_Play_Pause}"
+F8::Send "{Media_Play_Pause}" ; DUPLICATE REMOVED (Was F8::Suspend at bottom)
 F9::Send "{Media_Next}"
 F10::Send "{Volume_Mute}"
 F11::Send "{Volume_Down}"
@@ -251,5 +231,3 @@ LCtrl & LButton::Click "Right"
 RAlt::RAlt
 SC029::Send "{Text}§"
 +SC029::Send "{Text}±"
-
-F8::Suspend
