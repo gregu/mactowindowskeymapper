@@ -1,5 +1,5 @@
 ﻿; ==============================================================================
-; MAC OS ULTIMATE V21 (Duplicate Fixed & Final Polish)
+; MAC OS ULTIMATE V21 ( Duplicate Fixed & Final Polish )
 ; ==============================================================================
 #Requires AutoHotkey v2.0
 #SingleInstance Force
