@@ -1,109 +1,104 @@
 ﻿; ==============================================================================
-; MAC OS ULTIMATE V42 (EXPLICIT HOOKS - STABLE EDITION)
+; MAC OS ULTIMATE V48 (CUSTOM COMBINATIONS - THE IRON GRIP)
 ; ==============================================================================
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 #UseHook
 InstallKeybdHook
+SetWinDelay -1
+SetControlDelay -1
 
-; Maska dla klawisza Win (Zapobiega otwieraniu Menu Start)
+; Maska menu start
 A_MenuMaskKey := "vkE8"
 
 ; ==============================================================================
-; 1. SCREENSHOTS (Naprawa "4 aplikacji z belki")
+; 1. THE IRON GRIP (Blokowanie Win+Klawisz na poziomie AHK)
 ; ==============================================================================
-; Używamy $#, aby Windows nie mógł "ukraść" Win+4 dla paska zadań.
+; Użycie "&" sprawia, że LWin staje się "klawiszem prefiksowym".
+; System nie widzi LWin, dopóki go nie puścisz (a my go wyłączymy przy puszczeniu).
 
-$#+3::Send "{PrintScreen}"  ; Cmd+Shift+3
-$#+4::                      ; Cmd+Shift+4
+; --- EDYCJA I SYSTEM (Cmd + Litera) ---
+; {Blind} sprawia, że Shift przechodzi dalej.
+; Czyli: Trzymasz Shift + Cmd + F -> Skrypt wysyła Shift + Ctrl + F.
+
+LWin & a::Send "{Blind}^a"        ; Select All
+LWin & c::Send "{Blind}^c"        ; Copy
+LWin & v::Send "{Blind}^v"        ; Paste
+LWin & x::Send "{Blind}^x"        ; Cut
+LWin & z::Send "{Blind}^z"        ; Undo
+LWin & s::Send "{Blind}^s"        ; Save
+LWin & f::Send "{Blind}^f"        ; Find (IntelliJ Fix)
+LWin & r::Send "{Blind}^r"        ; Replace / Refresh
+LWin & n::Send "{Blind}^n"        ; New
+LWin & t::Send "{Blind}^t"        ; New Tab
+LWin & w::Send "{Blind}^w"        ; Close
+LWin & q::Send "!{F4}"            ; Quit -> Alt+F4
+LWin & /::Send "{Blind}^/"        ; Comment (IntelliJ)
+LWin & d::Send "{Blind}^d"        ; Duplicate (IntelliJ)
+LWin & b::Send "{Blind}^b"        ; Bold / Go to declaration
+LWin & l::Send "{Blind}^l"        ; Address Bar
+
+; --- NAWIGACJA (Cmd + Strzałki) ---
+LWin & Left::Send "{Blind}{Home}"
+LWin & Right::Send "{Blind}{End}"
+LWin & Up::Send "{Blind}^{Home}"
+LWin & Down::Send "{Blind}^{End}"
+
+; --- EDYCJA TEKSTU ---
+LWin & Backspace::Send "+{Home}{Delete}"
+
+; --- SYSTEMOWE ---
+LWin & Space::Send "^{Esc}"       ; Start Menu
+LWin & Tab::AltTab                ; App Switcher
+
+; --- SCREENSHOTY (Cmd + Shift + 3/4) ---
+; Tutaj musimy sprawdzić Shifta ręcznie, bo cyfry mają inne symbole z Shiftem
+LWin & 3::
 {
-    Send "{LWin Up}{LShift Up}" ; Czyścimy fizyczny stan dla Windowsa
-    Sleep 10
-    Send "#+s"                  ; Wyślij natywny Snip & Sketch
+    if GetKeyState("Shift", "P")
+        Send "{PrintScreen}"
+    else
+        Send "^3"
 }
 
-; ==============================================================================
-; 2. INTELLIJ & GLOBAL SHORTCUTS (The "Cmd" Experience)
-; ==============================================================================
-; Mapujemy fizyczny Win (#) na Ctrl (^). 
-; Dzięki $ system nie powinien odpalać Feedback Hub / Search Web.
+LWin & 4::
+{
+    if GetKeyState("Shift", "P")
+        Send "#+s"
+    else
+        Send "^4"
+}
 
-$#f::Send "^f"              ; Cmd+F -> Ctrl+F (Find)
-$#r::Send "^r"              ; Cmd+R -> Ctrl+R (Replace)
-$#+f::Send "^+f"            ; Cmd+Shift+F (Find in Path)
-$#c::Send "^c"              ; Cmd+C (Copy)
-$#v::Send "^v"              ; Cmd+V (Paste)
-$#s::Send "^s"              ; Cmd+S (Save)
-$#z::Send "^z"              ; Cmd+Z (Undo)
-$#+z::Send "^+z"            ; Cmd+Shift+Z (Redo)
-$#a::Send "^a"              ; Cmd+A (Select All)
-$#w::Send "^w"              ; Cmd+W (Close)
-$#t::Send "^t"              ; Cmd+T (New Tab)
-$#n::Send "^n"              ; Cmd+N (New)
-$#q::Send "!{F4}"            ; Cmd+Q (Quit)
-$#/::Send "^/"              ; Cmd+/ (Comment)
-$#d::Send "^d"              ; Cmd+D (Duplicate)
+; --- MYSZKA (Multicursor w IntelliJ) ---
+LWin & LButton::Send "^{LButton}"
 
 ; ==============================================================================
-; 3. NAVIGATION (Cmd + Arrows)
+; 2. CO ZROBIĆ Z SAMYM KLAWISZEM WIN?
 ; ==============================================================================
-$#Left::Send "{Home}"
-$#Right::Send "{End}"
-$#Up::Send "^{Home}"
-$#Down::Send "^{End}"
+; Jeśli naciśniesz i puścisz Cmd (bez innego klawisza), nie rób nic.
+; To całkowicie zabija przypadkowe otwieranie Menu Start.
+LWin::return 
 
-; Zaznaczanie (Cmd + Shift + Arrows)
-$#+Left::Send "+{Home}"
-$#+Right::Send "+{End}"
-$#+Up::Send "+^{Home}"
-$#+Down::Send "+^{End}"
+; ==============================================================================
+; 3. POZOSTAŁE ULEPSZENIA
+; ==============================================================================
 
-; Word Jump (Alt + Arrows -> Ctrl + Arrows)
+; Alt + Strzałki (Word Jump) -> Ctrl + Arrows
 !Left::Send "^{Left}"
 !Right::Send "^{Right}"
 !Backspace::Send "^{Backspace}"
 
-; Cmd + Backspace (Delete line)
-$#Backspace::Send "+{Home}{Delete}"
+; F-Keys (Media Mode Fix)
+SC13F::Send "#{Tab}"        ; Task View
+SC121::Send "^{Esc}"        ; Start / Launchpad
 
-; ==============================================================================
-; 4. MODIFIERS & SYSTEM
-; ==============================================================================
-
-; Cmd + Space (Start Menu)
-$#Space::Send "^{Esc}"
-
-; Fizyczny Ctrl -> Działa jak Win (Dla innych skrótów systemowych)
-LControl::LWin
-
-; ==============================================================================
-; 5. F-KEYS (Logitech MX Keys)
-; ==============================================================================
-; Jeśli klawiatura jest w trybie Media, używamy tych kodów:
-
-$F3::Send "#{Tab}"          ; Mission Control
-$F4::Send "^{Esc}"          ; Launchpad/Start
-
-; Mapowanie przycisków Logitech (nad F3/F4), jeśli standardowe F nie działają:
-SC13F::Send "#{Tab}"        ; Przycisk Task View
-SC121::Send "^{Esc}"        ; Przycisk Search
-
-; Multimedia
-$F7::Send "{Media_Prev}"
-$F8::Send "{Media_Play_Pause}"
-$F9::Send "{Media_Next}"
-$F11::Send "{Volume_Down}"
-$F12::Send "{Volume_Up}"
-
-; ==============================================================================
-; 6. EXPLORER & MISC
-; ==============================================================================
+; Explorer Fixes
 #HotIf WinActive("ahk_class CabinetWClass")
-    Enter::Send "{F2}"      ; Rename
-    #Down::Send "{Enter}"   ; Open
-    #Up::Send "!{Up}"       ; Parent
+    Enter::Send "{F2}"
+    LWin & Down::Send "{Enter}"
+    LWin & Up::Send "!{Up}"
 #HotIf
 
-; Klawisz pod Esc (§/±)
+; Klawisz §/±
 SC029::Send "{Text}§"
 +SC029::Send "{Text}±"
