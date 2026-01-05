@@ -1,5 +1,5 @@
 ﻿; ==============================================================================
-; MAC OS ULTIMATE V48 (CUSTOM COMBINATIONS - THE IRON GRIP)
+; MAC OS ULTIMATE V49 (THE MASKED INTERCEPTOR - LOGI KILLER)
 ; ==============================================================================
 #Requires AutoHotkey v2.0
 #SingleInstance Force
@@ -7,98 +7,90 @@
 InstallKeybdHook
 SetWinDelay -1
 SetControlDelay -1
+ProcessSetPriority "Realtime" ; Najwyższy możliwy priorytet dla skryptu
 
-; Maska menu start
-A_MenuMaskKey := "vkE8"
+; Maska (wirtualny klawisz, który nic nie robi, ale "zużywa" klawisz Win)
+vkMask := "vkE8"
 
 ; ==============================================================================
-; 1. THE IRON GRIP (Blokowanie Win+Klawisz na poziomie AHK)
+; 1. AGRESYWNA ZAMIANA MODYFIKATORÓW
 ; ==============================================================================
-; Użycie "&" sprawia, że LWin staje się "klawiszem prefiksowym".
-; System nie widzi LWin, dopóki go nie puścisz (a my go wyłączymy przy puszczeniu).
 
-; --- EDYCJA I SYSTEM (Cmd + Litera) ---
-; {Blind} sprawia, że Shift przechodzi dalej.
-; Czyli: Trzymasz Shift + Cmd + F -> Skrypt wysyła Shift + Ctrl + F.
+*LWin::
+{
+    ; KROK 1: Oszukaj Windowsa, że klawisz Win został już "zużyty"
+    Send "{Blind}{" vkMask "}"
+    
+    ; KROK 2: Fizycznie "puść" klawisz Win w oczach systemu
+    Send "{Blind}{LWin Up}"
+    
+    ; KROK 3: Wciśnij Ctrl
+    Send "{Blind}{LCtrl Down}"
+    
+    ; KROK 4: Czekaj, aż Ty fizycznie puścisz klawisz na klawiaturze
+    KeyWait "LWin"
+    
+    ; KROK 5: Puść Ctrl
+    Send "{Blind}{LCtrl Up}"
+}
 
-LWin & a::Send "{Blind}^a"        ; Select All
-LWin & c::Send "{Blind}^c"        ; Copy
-LWin & v::Send "{Blind}^v"        ; Paste
-LWin & x::Send "{Blind}^x"        ; Cut
-LWin & z::Send "{Blind}^z"        ; Undo
-LWin & s::Send "{Blind}^s"        ; Save
-LWin & f::Send "{Blind}^f"        ; Find (IntelliJ Fix)
-LWin & r::Send "{Blind}^r"        ; Replace / Refresh
-LWin & n::Send "{Blind}^n"        ; New
-LWin & t::Send "{Blind}^t"        ; New Tab
-LWin & w::Send "{Blind}^w"        ; Close
-LWin & q::Send "!{F4}"            ; Quit -> Alt+F4
-LWin & /::Send "{Blind}^/"        ; Comment (IntelliJ)
-LWin & d::Send "{Blind}^d"        ; Duplicate (IntelliJ)
-LWin & b::Send "{Blind}^b"        ; Bold / Go to declaration
-LWin & l::Send "{Blind}^l"        ; Address Bar
+; Fizyczny Ctrl działa jako Win (dla Cmd+Space)
+*LCtrl::
+{
+    Send "{Blind}{LWin Down}"
+    KeyWait "LCtrl"
+    Send "{Blind}{LWin Up}"
+    ; Maska, żeby samo Ctrl nie otwierało niczego dziwnego
+    if (A_PriorKey = "LCtrl")
+        Send "{Blind}{" vkMask "}"
+}
+
+; ==============================================================================
+; 2. SKRÓTY SYSTEMOWE (Dostosowane do nowego silnika)
+; ==============================================================================
+; Teraz Cmd to dla systemu Ctrl. Więc piszemy skróty z ^.
+
+; Cmd+Space -> Start (Fizycznie Ctrl+Space -> Wysyła Win+Esc)
+^Space::Send "^{Esc}"
+
+; Cmd+Tab -> Alt+Tab (Fizycznie Ctrl+Tab)
+LCtrl & Tab::AltTab
+
+; --- SCREENSHOTY (Cmd+Shift+3/4) ---
+^+3::Send "{PrintScreen}"
+^+4::Send "#+s"
 
 ; --- NAWIGACJA (Cmd + Strzałki) ---
-LWin & Left::Send "{Blind}{Home}"
-LWin & Right::Send "{Blind}{End}"
-LWin & Up::Send "{Blind}^{Home}"
-LWin & Down::Send "{Blind}^{End}"
+^Left::Send "{Home}"
+^Right::Send "{End}"
+^Up::Send "^{Home}"
+^Down::Send "^{End}"
 
-; --- EDYCJA TEKSTU ---
-LWin & Backspace::Send "+{Home}{Delete}"
+; --- ZAZNACZANIE (Cmd + Shift + Strzałki) ---
++^Left::Send "+{Home}"
++^Right::Send "+{End}"
++^Up::Send "+^{Home}"
++^Down::Send "+^{End}"
 
-; --- SYSTEMOWE ---
-LWin & Space::Send "^{Esc}"       ; Start Menu
-LWin & Tab::AltTab                ; App Switcher
-
-; --- SCREENSHOTY (Cmd + Shift + 3/4) ---
-; Tutaj musimy sprawdzić Shifta ręcznie, bo cyfry mają inne symbole z Shiftem
-LWin & 3::
-{
-    if GetKeyState("Shift", "P")
-        Send "{PrintScreen}"
-    else
-        Send "^3"
-}
-
-LWin & 4::
-{
-    if GetKeyState("Shift", "P")
-        Send "#+s"
-    else
-        Send "^4"
-}
-
-; --- MYSZKA (Multicursor w IntelliJ) ---
-LWin & LButton::Send "^{LButton}"
-
-; ==============================================================================
-; 2. CO ZROBIĆ Z SAMYM KLAWISZEM WIN?
-; ==============================================================================
-; Jeśli naciśniesz i puścisz Cmd (bez innego klawisza), nie rób nic.
-; To całkowicie zabija przypadkowe otwieranie Menu Start.
-LWin::return 
-
-; ==============================================================================
-; 3. POZOSTAŁE ULEPSZENIA
-; ==============================================================================
-
-; Alt + Strzałki (Word Jump) -> Ctrl + Arrows
+; --- INNE ---
+^Backspace::Send "+{Home}{Delete}"
 !Left::Send "^{Left}"
 !Right::Send "^{Right}"
 !Backspace::Send "^{Backspace}"
 
-; F-Keys (Media Mode Fix)
-SC13F::Send "#{Tab}"        ; Task View
-SC121::Send "^{Esc}"        ; Start / Launchpad
-
-; Explorer Fixes
+; ==============================================================================
+; 3. FIXES
+; ==============================================================================
 #HotIf WinActive("ahk_class CabinetWClass")
     Enter::Send "{F2}"
-    LWin & Down::Send "{Enter}"
-    LWin & Up::Send "!{Up}"
+    ^Down::Send "{Enter}"
+    ^Up::Send "!{Up}"
 #HotIf
 
-; Klawisz §/±
+; Klawisze F3/F4 (Logitech codes)
+SC13F::Send "#{Tab}"
+SC121::Send "^{Esc}"
+
+; Klawisz pod Esc
 SC029::Send "{Text}§"
 +SC029::Send "{Text}±"
