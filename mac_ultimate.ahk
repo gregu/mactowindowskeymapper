@@ -1,5 +1,5 @@
 ﻿; ==============================================================================
-; MAC OS ULTIMATE V49 (THE MASKED INTERCEPTOR - LOGI KILLER)
+; MAC OS ULTIMATE V50 (INPUT HOOK - THE VACUUM CLEANER)
 ; ==============================================================================
 #Requires AutoHotkey v2.0
 #SingleInstance Force
@@ -7,79 +7,79 @@
 InstallKeybdHook
 SetWinDelay -1
 SetControlDelay -1
-ProcessSetPriority "Realtime" ; Najwyższy możliwy priorytet dla skryptu
-
-; Maska (wirtualny klawisz, który nic nie robi, ale "zużywa" klawisz Win)
-vkMask := "vkE8"
+ProcessSetPriority "Realtime"
 
 ; ==============================================================================
-; 1. AGRESYWNA ZAMIANA MODYFIKATORÓW
+; 1. THE VACUUM (Całkowite usunięcie LWin z oczu systemu)
 ; ==============================================================================
+; Tworzymy InputHook, który "połyka" klawisz LWin.
+; Windows w ogóle nie dowie się, że go nacisnąłeś.
 
-*LWin::
-{
-    ; KROK 1: Oszukaj Windowsa, że klawisz Win został już "zużyty"
-    Send "{Blind}{" vkMask "}"
-    
-    ; KROK 2: Fizycznie "puść" klawisz Win w oczach systemu
-    Send "{Blind}{LWin Up}"
-    
-    ; KROK 3: Wciśnij Ctrl
-    Send "{Blind}{LCtrl Down}"
-    
-    ; KROK 4: Czekaj, aż Ty fizycznie puścisz klawisz na klawiaturze
-    KeyWait "LWin"
-    
-    ; KROK 5: Puść Ctrl
-    Send "{Blind}{LCtrl Up}"
-}
+WinHook := InputHook("V0 L0") ; V0 = Ukryj klawisz przed systemem
+WinHook.KeyOpt("{LWin}", "SN") ; S = Suppress (Zablokuj), N = Notify (Powiadom skrypt)
 
-; Fizyczny Ctrl działa jako Win (dla Cmd+Space)
+; Kiedy naciskasz fizyczny Win -> Skrypt wciska wirtualny Ctrl
+WinHook.OnKeyDown := ((*) => SendInput("{LCtrl Down}"))
+
+; Kiedy puszczasz fizyczny Win -> Skrypt puszcza wirtualny Ctrl
+WinHook.OnKeyUp := ((*) => SendInput("{LCtrl Up}"))
+
+WinHook.Start()
+
+; ==============================================================================
+; 2. FIZYCZNY CTRL -> WIN (Dla Cmd+Space)
+; ==============================================================================
+; Skoro zabiliśmy Win, musimy dać Ci sposób na otwarcie Menu Start.
+; Fizyczny Ctrl (lewy dół) będzie działał jak Win.
+
 *LCtrl::
 {
-    Send "{Blind}{LWin Down}"
-    KeyWait "LCtrl"
-    Send "{Blind}{LWin Up}"
-    ; Maska, żeby samo Ctrl nie otwierało niczego dziwnego
+    SendInput "{LWin Down}"
+}
+
+*LCtrl Up::
+{
+    SendInput "{LWin Up}"
+    ; Zapobiega otwieraniu Startu, jeśli użyłeś Ctrl jako modyfikatora
     if (A_PriorKey = "LCtrl")
-        Send "{Blind}{" vkMask "}"
+        SendInput "{vkE8}" 
 }
 
 ; ==============================================================================
-; 2. SKRÓTY SYSTEMOWE (Dostosowane do nowego silnika)
+; 3. SKRÓTY (Bazujemy na Ctrl, bo Win został zamieniony w Pkt 1)
 ; ==============================================================================
-; Teraz Cmd to dla systemu Ctrl. Więc piszemy skróty z ^.
 
-; Cmd+Space -> Start (Fizycznie Ctrl+Space -> Wysyła Win+Esc)
+; Cmd+Space -> Menu Start (Teraz fizycznie Ctrl+Space)
 ^Space::Send "^{Esc}"
 
 ; Cmd+Tab -> Alt+Tab (Fizycznie Ctrl+Tab)
 LCtrl & Tab::AltTab
 
-; --- SCREENSHOTY (Cmd+Shift+3/4) ---
+; --- SCREENSHOTY ---
 ^+3::Send "{PrintScreen}"
 ^+4::Send "#+s"
 
-; --- NAWIGACJA (Cmd + Strzałki) ---
+; --- NAWIGACJA (Cmd+Strzałki) ---
 ^Left::Send "{Home}"
 ^Right::Send "{End}"
 ^Up::Send "^{Home}"
 ^Down::Send "^{End}"
 
-; --- ZAZNACZANIE (Cmd + Shift + Strzałki) ---
 +^Left::Send "+{Home}"
 +^Right::Send "+{End}"
 +^Up::Send "+^{Home}"
 +^Down::Send "+^{End}"
 
-; --- INNE ---
+; --- EDYCJA ---
 ^Backspace::Send "+{Home}{Delete}"
+
+; Alt + Strzałki (Word Jump)
 !Left::Send "^{Left}"
 !Right::Send "^{Right}"
 !Backspace::Send "^{Backspace}"
 
 ; ==============================================================================
-; 3. FIXES
+; 4. FIXES
 ; ==============================================================================
 #HotIf WinActive("ahk_class CabinetWClass")
     Enter::Send "{F2}"
@@ -87,10 +87,9 @@ LCtrl & Tab::AltTab
     ^Up::Send "!{Up}"
 #HotIf
 
-; Klawisze F3/F4 (Logitech codes)
+; Klawisze F3/F4 (Logitech Codes)
 SC13F::Send "#{Tab}"
 SC121::Send "^{Esc}"
 
-; Klawisz pod Esc
 SC029::Send "{Text}§"
 +SC029::Send "{Text}±"
