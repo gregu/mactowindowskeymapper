@@ -1,65 +1,56 @@
 ﻿; ==============================================================================
-; MAC OS ULTIMATE V50 (INPUT HOOK - THE VACUUM CLEANER)
+; MAC OS ULTIMATE V52 (JAVA COMPATIBILITY MODE - SendEvent)
 ; ==============================================================================
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 #UseHook
 InstallKeybdHook
-SetWinDelay -1
-SetControlDelay -1
-ProcessSetPriority "Realtime"
+; Zmiana silnika na SendEvent (wolniejszy, ale lepiej działa z Javą/Adminem)
+SetKeyDelay 0, 0 
+SendMode "Event" 
+
+; Maska menu start
+A_MenuMaskKey := "vkE8"
 
 ; ==============================================================================
-; 1. THE VACUUM (Całkowite usunięcie LWin z oczu systemu)
+; 1. BEZWARUNKOWY REMAP (Blind Mode)
 ; ==============================================================================
-; Tworzymy InputHook, który "połyka" klawisz LWin.
-; Windows w ogóle nie dowie się, że go nacisnąłeś.
+; Używamy składni bez gwiazdki (*) w specyficzny sposób dla LWin.
+; Próbujemy "oszukać" system, że LWin to tak naprawdę LCtrl.
 
-WinHook := InputHook("V0 L0") ; V0 = Ukryj klawisz przed systemem
-WinHook.KeyOpt("{LWin}", "SN") ; S = Suppress (Zablokuj), N = Notify (Powiadom skrypt)
-
-; Kiedy naciskasz fizyczny Win -> Skrypt wciska wirtualny Ctrl
-WinHook.OnKeyDown := ((*) => SendInput("{LCtrl Down}"))
-
-; Kiedy puszczasz fizyczny Win -> Skrypt puszcza wirtualny Ctrl
-WinHook.OnKeyUp := ((*) => SendInput("{LCtrl Up}"))
-
-WinHook.Start()
+LWin::LCtrl
+LCtrl::LWin
 
 ; ==============================================================================
-; 2. FIZYCZNY CTRL -> WIN (Dla Cmd+Space)
+; 2. WYMUSZANIE HOOKA NA INTELLIJ
 ; ==============================================================================
-; Skoro zabiliśmy Win, musimy dać Ci sposób na otwarcie Menu Start.
-; Fizyczny Ctrl (lewy dół) będzie działał jak Win.
+; Gdy IntelliJ staje się aktywne, wymuszamy odświeżenie skryptu.
+; Czasem to pozwala "wskoczyć" przed system.
 
-*LCtrl::
-{
-    SendInput "{LWin Down}"
-}
-
-*LCtrl Up::
-{
-    SendInput "{LWin Up}"
-    ; Zapobiega otwieraniu Startu, jeśli użyłeś Ctrl jako modyfikatora
-    if (A_PriorKey = "LCtrl")
-        SendInput "{vkE8}" 
+Loop {
+    if WinActive("ahk_exe idea64.exe") {
+        ; Jeśli jesteśmy w IntelliJ, upewnij się, że Hook jest aktywny
+        if (A_TimeIdle < 500) ; Tylko jeśli piszesz
+            InstallKeybdHook
+    }
+    Sleep 1000
 }
 
 ; ==============================================================================
-; 3. SKRÓTY (Bazujemy na Ctrl, bo Win został zamieniony w Pkt 1)
+; 3. SKRÓTY (Oparte na nowym LCtrl)
 ; ==============================================================================
 
-; Cmd+Space -> Menu Start (Teraz fizycznie Ctrl+Space)
+; Cmd+Space -> Menu Start
 ^Space::Send "^{Esc}"
 
-; Cmd+Tab -> Alt+Tab (Fizycznie Ctrl+Tab)
+; Cmd+Tab -> Alt+Tab
 LCtrl & Tab::AltTab
 
 ; --- SCREENSHOTY ---
 ^+3::Send "{PrintScreen}"
 ^+4::Send "#+s"
 
-; --- NAWIGACJA (Cmd+Strzałki) ---
+; --- NAWIGACJA ---
 ^Left::Send "{Home}"
 ^Right::Send "{End}"
 ^Up::Send "^{Home}"
@@ -73,7 +64,7 @@ LCtrl & Tab::AltTab
 ; --- EDYCJA ---
 ^Backspace::Send "+{Home}{Delete}"
 
-; Alt + Strzałki (Word Jump)
+; Alt + Strzałki
 !Left::Send "^{Left}"
 !Right::Send "^{Right}"
 !Backspace::Send "^{Backspace}"
@@ -87,9 +78,7 @@ LCtrl & Tab::AltTab
     ^Up::Send "!{Up}"
 #HotIf
 
-; Klawisze F3/F4 (Logitech Codes)
 SC13F::Send "#{Tab}"
 SC121::Send "^{Esc}"
-
 SC029::Send "{Text}§"
 +SC029::Send "{Text}±"
