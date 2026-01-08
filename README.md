@@ -1,77 +1,74 @@
-# macOS Keybindings for Windows (AHK V20)
+# 🍏 Ultimate macOS Experience for Windows (V63)
 
-This AutoHotkey v2 script remaps Windows keys to match macOS behavior. It is specifically optimized for developers using **IntelliJ/VS Code** and users of **Logitech MX Keys**.
+Transform your Windows 10/11 workflow into macOS. Optimized for **Logitech MX Keys**, **IntelliJ IDEA**, and **Developers** (No Admin Rights required).
 
-## ⌨️ 1. Hardware Setup (Logitech MX Keys)
-For the F-keys to function as described (F3 for Mission Control, F7-12 for Media), you must set your keyboard to **Standard F-Keys mode**.
+## 🚀 The Hybrid Architecture
 
-1.  Locate the **Esc** key.
-2.  Press **`Fn + Esc`** once to toggle the lock.
-3.  **Result:** The keyboard should now send standard F1-F12 signals. The script will programmatically convert them back to Media keys where appropriate.
+This project uses a robust **2-Layer Approach** to bypass Windows restrictions and avoid conflicts:
 
-## 🚀 2. Installation (GitHub ZIP / Portable)
-You do not need a full system installation. You can run this from a folder.
+1.  **Layer 1 (Hardware): Microsoft PowerToys**
+    * Remaps physical keys at the low-level registry hook.
+    * **Crucial:** Maps `Win (Left)` ➔ `Ctrl (Left)`.
+    * *Result:* Windows sees a clean `Ctrl` signal. Zero conflicts with Start Menu or Feedback Hub.
+2.  **Layer 2 (Logic): AutoHotkey v2**
+    * Handles navigation, window management, special characters, and app-specific logic (Terminal, Finder).
 
-1.  Go to the **[AutoHotkey GitHub Releases](https://github.com/AutoHotkey/AutoHotkey/releases)** page.
-2.  Download the latest **`.zip`** file (e.g., `AutoHotkey_2.0.x.zip`).
-3.  Extract the ZIP contents to a folder on your computer.
-4.  Download the `mac_ultimate_v20.ahk` script and place it in that folder.
-5.  **Run the script:**
-    * **Option A:** Drag and drop `mac_ultimate_v20.ahk` onto **`AutoHotkey64.exe`**.
-    * **Option B (Recommended):** Right-click `AutoHotkey64.exe` -> **Run as Administrator**, then browse and select the script.
-    * *Note: Administrator rights are required to override system shortcuts like Win+F (Search) and Win+C (Copilot).*
+---
 
-## ⚡ 3. Key Mappings & Features
+## 🛠️ Prerequisites
 
-### System & Modifiers
-| Key | Action |
-| :--- | :--- |
-| **Cmd (⌘)** | Acts as **Control**. |
-| **Control (⌃)** | Acts as **Windows Key** (Start Menu blocked on simple tap). |
-| **Cmd + Space** | Start Menu. |
-| **Cmd + Tab** | Alt + Tab. |
-| **Cmd + Q** | Quit Application (`Alt + F4`). |
-| **Cmd + M** | Minimize Window. |
+1.  **[Microsoft PowerToys](https://github.com/microsoft/PowerToys/releases)**
+    * Download the `UserSetup` version (installable without Admin rights).
+2.  **[AutoHotkey v2](https://github.com/AutoHotkey/AutoHotkey/releases)**
+    * Download and install `AutoHotkey_2.0.x_setup.exe`.
 
-### F-Row (Hybrid Mode)
-| Key | Action |
-| :--- | :--- |
-| **F3** | Mission Control (Task View). |
-| **F4** | Launchpad (Start Menu). |
-| **F7 - F9** | Media: Prev, Play/Pause, Next. |
-| **F10 - F12** | Volume: Mute, Down, Up. |
+---
 
-### IDEs (IntelliJ / VS Code)
-*Overrides Windows system shortcuts to prevent conflicts.*
-* **Cmd + Shift + F**: Find in Files (Blocks Windows Web Search).
-* **Cmd + F**: Find (Blocks Windows Feedback Hub).
-* **Cmd + C**: Copy (Blocks Windows Copilot).
-* **Cmd + /**: Comment Line.
-* **Cmd + 1**: Project View.
-* **Cmd + Backtick (`):** Open Terminal.
+## ⚙️ Configuration (Step-by-Step)
 
-### Finder Navigation (Windows Explorer)
-* **Cmd + ↓**: Open file/folder.
-* **Cmd + ↑**: Go to parent folder.
-* **Cmd + [** or **Cmd + ←**: Back.
-* **Cmd + ]** or **Cmd + →**: Forward.
-* **Enter**: Rename file.
-* **Cmd + Backspace**: Delete file to Recycle Bin.
-* **Cmd + Shift + N**: Create New Folder.
+### 1. PowerToys Keyboard Manager
+Open PowerToys -> Keyboard Manager -> **Remap keys**. Add exactly these two mappings:
 
-### Text Navigation (Global)
-* **Cmd + Arrows**: Jump to Start/End of line or Top/Bottom of file.
-* **Option (Alt) + Arrows**: Jump by Word.
-* **Cmd + Backspace**: Delete current line.
-* **Option + Backspace**: Delete previous word.
+| Physical Key (Input) | Mapped To (Output) | Why? |
+| :--- | :--- | :--- |
+| **Win (Left)** | **Ctrl (Left)** | Makes your Thumb key act as Ctrl (Cmd behavior). |
+| **Ctrl (Left)** | **Win (Left)** | Moves the Windows key to the corner (for Snap/Lock). |
 
-### Browsers (Chrome / Edge / Firefox)
-* **Cmd + L**: Highlight Address Bar.
-* **Cmd + T**: New Tab.
-* **Cmd + Shift + T**: Reopen Closed Tab.
-* **Cmd + R**: Refresh.
-* **Cmd + Opt + I**: Developer Tools (F12).
+### 2. PowerToys Utilities
+Enable these modules to match macOS behavior:
+* **PowerToys Run:** On (Shortcut: `Alt + Space`). Acts as **Spotlight**.
+* **Peek:** On (Shortcut: `Ctrl + Space`). Acts as **Quick Look**.
 
-### Screenshots
-* **Cmd + Shift + 3**: Print Screen.
-* **Cmd + Shift + 4**: Snipping Tool.
+### 3. Install the Script
+1.  Download `mac_ultimate_v63.ahk`.
+2.  Double-click `INSTALL_AUTOSTART.bat` to automatically copy the script to your Windows Startup folder.
+3.  Run the `.ahk` file manually once to start it immediately.
+
+---
+
+## ✨ Key Features
+
+* **System:** Spotlight (`Cmd+Space`), Force Quit, Lock Screen, Emoji Picker (`Cmd+Ctrl+Space`).
+* **Finder:** Navigation (`Cmd+Arrows`), Quick Look (`Space`), New Folder, Delete (`Cmd+Back`).
+* **Text:** macOS cursor navigation (`Cmd/Opt + Arrows`), `Cmd+A/C/V/Z`.
+* **Browsers:** Native tab management, Zoom (`Cmd +/-`), Address Bar (`Cmd+L`).
+* **IntelliJ/VS Code:** Works **natively**! `Cmd+C/V/F`, `Cmd+Click`, Refactorings all work because the system sees `Ctrl`.
+* **Terminal:**
+    * `Cmd+C` = Copy.
+    * `Cmd+V` = Paste.
+    * `Ctrl+C` (Corner key) = SIGINT (Interrupt signal).
+
+## 📚 Shortcuts Reference
+
+For a complete list of all 400+ supported shortcuts, see **[supportedShortcuts.md](supportedShortcuts.md)**.
+
+## ❓ FAQ
+
+**Why doesn't the script handle `Cmd+C`?**
+Because PowerToys handles it! By remapping Win->Ctrl at the hardware level, `Cmd+C` is sent as `Ctrl+C` to Windows natively. This is faster and bug-free.
+
+**The Start Menu opens when I press Cmd!**
+PowerToys is likely not running or the Keyboard Manager is disabled.
+
+---
+**License:** MIT
